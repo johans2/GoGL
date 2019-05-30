@@ -311,6 +311,11 @@ var cubeVertices = []float32{
 }
 
 func readOBJ(filePath string) ([]float32, error) {
+	// Read the obj file. f v1/vt1/vn1 v2/vt2/vn2 v3/vt3/vn3 ...
+	// v vertice Index
+	// vt vertice texture coordinate Index
+	// vn vertice normal Index
+
 	vertices := []float32{0, 0, 0}
 	return vertices, nil
 }
