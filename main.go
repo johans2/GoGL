@@ -310,6 +310,11 @@ var cubeVertices = []float32{
 	1.0, 1.0, 1.0, 0.0, 1.0,
 }
 
+func readOBJ(filePath string) ([]float32, error) {
+	vertices := []float32{0, 0, 0}
+	return vertices, nil
+}
+
 // Set the working directory to the root of Go package, so that its assets can be accessed.
 func init() {
 	dir, err := importPathToDir("GoGL")
