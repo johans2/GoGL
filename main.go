@@ -319,8 +319,9 @@ func readOBJ(filePath string) ([]float32, error) {
 	// v vertice Index
 	// vt vertice texture coordinate Index
 	// vn vertice normal Index
+	// X, Y, Z, U, V, N1,N2
 
-	vertices := []float32{0, 0, 0}
+	vertices := []float32{0, 0, 0, 0, 0, 0, 0}
 	return vertices, nil
 }
 
