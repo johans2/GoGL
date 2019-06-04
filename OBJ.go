@@ -17,7 +17,7 @@ type faceIndex struct {
 }
 
 type objModel struct {
-	string   name
+	meshName string
 	vertices []mgl32.Vec3
 	uvs      []mgl32.Vec2
 	normals  []mgl32.Vec3
@@ -39,9 +39,9 @@ func readOBJ(filePath string) (objModel, error) {
 		values := strings.Split(text, " ")
 
 		switch values[0] {
-    case "o"
-      // Mesh name
-      model.name = values[1]
+		case "o":
+			// Mesh name
+			model.meshName = values[1]
 		case "v":
 			// Vertice
 			x, _ := strconv.ParseFloat(values[1], 32)
@@ -68,20 +68,20 @@ func readOBJ(filePath string) (objModel, error) {
 
 			var face faceIndex
 
-			f1v1, _ := strconv.ParseInt(f1text[0], 10, 32)
-			f1uv1, _ := strconv.ParseInt(f1text[1], 10, 32)
-			f1n1, _ := strconv.ParseInt(f1text[2], 10, 32)
-			face.f1 = append(face.f1, int32(f1v1), int32(f1uv1), int32(f1n1))
+			fv1, _ := strconv.ParseInt(f1text[0], 10, 32)
+			fuv1, _ := strconv.ParseInt(f1text[1], 10, 32)
+			fn1, _ := strconv.ParseInt(f1text[2], 10, 32)
+			face.f1 = append(face.f1, int32(fv1), int32(fuv1), int32(fn1))
 
-			f2v1, _ := strconv.ParseInt(f2text[0], 10, 32)
-			f2uv1, _ := strconv.ParseInt(f2text[1], 10, 32)
-			f2n1, _ := strconv.ParseInt(f2text[2], 10, 32)
-			face.f1 = append(face.f1, int32(f2v1), int32(f2uv1), int32(f2n1))
+			fv2, _ := strconv.ParseInt(f2text[0], 10, 32)
+			fuv2, _ := strconv.ParseInt(f2text[1], 10, 32)
+			fn2, _ := strconv.ParseInt(f2text[2], 10, 32)
+			face.f2 = append(face.f2, int32(fv2), int32(fuv2), int32(fn2))
 
-			f3v1, _ := strconv.ParseInt(f3text[0], 10, 32)
-			f3uv1, _ := strconv.ParseInt(f3text[1], 10, 32)
-			f3n1, _ := strconv.ParseInt(f3text[2], 10, 32)
-			face.f1 = append(face.f1, int32(f3v1), int32(f3uv1), int32(f3n1))
+			fv3, _ := strconv.ParseInt(f3text[0], 10, 32)
+			fuv3, _ := strconv.ParseInt(f3text[1], 10, 32)
+			fn3, _ := strconv.ParseInt(f3text[2], 10, 32)
+			face.f3 = append(face.f3, int32(fv3), int32(fuv3), int32(fn3))
 		}
 
 	}
