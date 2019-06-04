@@ -85,6 +85,10 @@ func main() {
 		log.Fatalln(err)
 	}
 
+	sphereVertices, _ := readOBJ("filePath")
+
+	fmt.Println("Vertices", sphereVertices)
+
 	// Configure the vertex data
 	var vao uint32
 	gl.GenVertexArrays(1, &vao)
