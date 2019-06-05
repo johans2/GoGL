@@ -85,14 +85,9 @@ func main() {
 		log.Fatalln(err)
 	}
 
-	sphereModel, _ := readOBJ("filePath")
-
-	arr := sphereModel.ToArrayXYZUVN1N2N3()
-
-	if arr != nil {
-		println("end")
-	}
-
+	sphereModel, _ := readOBJ("lowPolySphere2.obj")
+	sphereVerts := sphereModel.ToArrayXYZUV()
+	println("-------> len:  ", len(sphereVerts))
 	// Configure the vertex data
 	var vao uint32
 	gl.GenVertexArrays(1, &vao)
@@ -101,7 +96,7 @@ func main() {
 	var vbo uint32
 	gl.GenBuffers(1, &vbo)
 	gl.BindBuffer(gl.ARRAY_BUFFER, vbo)
-	gl.BufferData(gl.ARRAY_BUFFER, len(cubeVertices)*4, gl.Ptr(cubeVertices), gl.STATIC_DRAW)
+	gl.BufferData(gl.ARRAY_BUFFER, len(sphereVerts)*4, gl.Ptr(sphereVerts), gl.STATIC_DRAW)
 
 	vertAttrib := uint32(gl.GetAttribLocation(program, gl.Str("vert\x00")))
 	gl.EnableVertexAttribArray(vertAttrib)
@@ -267,6 +262,7 @@ void main() {
 }
 ` + "\x00"
 
+/*
 var cubeVertices = []float32{
 	//  X, Y, Z, U, V
 	// Bottom
@@ -317,7 +313,7 @@ var cubeVertices = []float32{
 	1.0, 1.0, -1.0, 0.0, 0.0,
 	1.0, 1.0, 1.0, 0.0, 1.0,
 }
-
+*/
 // Set the working directory to the root of Go package, so that its assets can be accessed.
 func init() {
 	dir, err := importPathToDir("GoGL")

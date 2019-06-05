@@ -56,8 +56,35 @@ func (m objModel) ToArrayXYZUVN1N2N3() []float32 {
 	return verticeArray
 }
 
+func (m objModel) ToArrayXYZUV() []float32 {
+	var verticeArray []float32
+	println("Num faces: ", len(m.faces))
+	for _, face := range m.faces {
+		// Vertice 1
+		v1 := m.vertices[face.f1[0]]
+		uv1 := m.uvs[face.f1[1]]
+		verticeArray = append(verticeArray, v1.X(), v1.Y(), v1.Z())
+		verticeArray = append(verticeArray, uv1.X(), uv1.Y())
+
+		// Vertice 2
+		v2 := m.vertices[face.f2[0]]
+		uv2 := m.uvs[face.f2[1]]
+		verticeArray = append(verticeArray, v2.X(), v2.Y(), v2.Z())
+		verticeArray = append(verticeArray, uv2.X(), uv2.Y())
+
+		// Vertice 3
+		v3 := m.vertices[face.f3[0]]
+		uv3 := m.uvs[face.f3[1]]
+		verticeArray = append(verticeArray, v3.X(), v3.Y(), v3.Z())
+		verticeArray = append(verticeArray, uv3.X(), uv3.Y())
+	}
+
+	return verticeArray
+
+}
+
 func readOBJ(filePath string) (objModel, error) {
-	file, err := os.Open("lowPolySphere.obj")
+	file, err := os.Open(filePath)
 	defer file.Close()
 
 	if err != nil {
