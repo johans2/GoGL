@@ -85,9 +85,13 @@ func main() {
 		log.Fatalln(err)
 	}
 
-	sphereVertices, _ := readOBJ("filePath")
+	sphereModel, _ := readOBJ("filePath")
 
-	fmt.Println("Vertices", sphereVertices)
+	arr := sphereModel.ToArrayXYZUVN1N2N3()
+
+	if arr != nil {
+		println("end")
+	}
 
 	// Configure the vertex data
 	var vao uint32

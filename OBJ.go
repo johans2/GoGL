@@ -24,6 +24,38 @@ type objModel struct {
 	faces    []faceIndex
 }
 
+func (m objModel) ToArrayXYZUVN1N2N3() []float32 {
+	var verticeArray []float32
+	for _, face := range m.faces {
+		// Vertice 1
+		v1 := m.vertices[face.f1[0]]
+		uv1 := m.uvs[face.f1[1]]
+		n1 := m.normals[face.f1[2]]
+		verticeArray = append(verticeArray, v1.X(), v1.Y(), v1.Z())
+		verticeArray = append(verticeArray, uv1.X(), uv1.Y())
+		verticeArray = append(verticeArray, n1.X(), n1.Y(), n1.Z())
+
+		// Vertice 2
+		v2 := m.vertices[face.f2[0]]
+		uv2 := m.uvs[face.f2[1]]
+		n2 := m.normals[face.f2[2]]
+		verticeArray = append(verticeArray, v2.X(), v2.Y(), v2.Z())
+		verticeArray = append(verticeArray, uv2.X(), uv2.Y())
+		verticeArray = append(verticeArray, n2.X(), n2.Y(), n2.Z())
+
+		// Vertice 3
+		v3 := m.vertices[face.f3[0]]
+		uv3 := m.uvs[face.f3[1]]
+		n3 := m.normals[face.f3[2]]
+		verticeArray = append(verticeArray, v3.X(), v3.Y(), v3.Z())
+		verticeArray = append(verticeArray, uv3.X(), uv3.Y())
+		verticeArray = append(verticeArray, n3.X(), n3.Y(), n3.Z())
+
+	}
+
+	return verticeArray
+}
+
 func readOBJ(filePath string) (objModel, error) {
 	file, err := os.Open("lowPolySphere.obj")
 	defer file.Close()
@@ -67,21 +99,23 @@ func readOBJ(filePath string) (objModel, error) {
 			f3text := strings.Split(values[3], "/")
 
 			var face faceIndex
-
+			// -1 on final index since obj indexing starts at 1 (we want 0)
 			fv1, _ := strconv.ParseInt(f1text[0], 10, 32)
 			fuv1, _ := strconv.ParseInt(f1text[1], 10, 32)
 			fn1, _ := strconv.ParseInt(f1text[2], 10, 32)
-			face.f1 = append(face.f1, int32(fv1), int32(fuv1), int32(fn1))
+			face.f1 = append(face.f1, int32(fv1)-1, int32(fuv1)-1, int32(fn1)-1)
 
 			fv2, _ := strconv.ParseInt(f2text[0], 10, 32)
 			fuv2, _ := strconv.ParseInt(f2text[1], 10, 32)
 			fn2, _ := strconv.ParseInt(f2text[2], 10, 32)
-			face.f2 = append(face.f2, int32(fv2), int32(fuv2), int32(fn2))
+			face.f2 = append(face.f2, int32(fv2)-1, int32(fuv2)-1, int32(fn2)-1)
 
 			fv3, _ := strconv.ParseInt(f3text[0], 10, 32)
 			fuv3, _ := strconv.ParseInt(f3text[1], 10, 32)
 			fn3, _ := strconv.ParseInt(f3text[2], 10, 32)
-			face.f3 = append(face.f3, int32(fv3), int32(fuv3), int32(fn3))
+			face.f3 = append(face.f3, int32(fv3)-1, int32(fuv3)-1, int32(fn3)-1)
+
+			model.faces = append(model.faces, face)
 		}
 
 	}
