@@ -85,7 +85,7 @@ func main() {
 		log.Fatalln(err)
 	}
 
-	sphereModel, _ := readOBJ("lowPolySphere2.obj")
+	sphereModel, _ := readOBJ("lowPolySphere.obj")
 	sphereVerts := sphereModel.ToArrayXYZUV()
 	println("-------> len:  ", len(sphereVerts))
 	// Configure the vertex data
@@ -134,7 +134,7 @@ func main() {
 		gl.ActiveTexture(gl.TEXTURE0)
 		gl.BindTexture(gl.TEXTURE_2D, texture)
 
-		gl.DrawArrays(gl.TRIANGLES, 0, 6*2*3)
+		gl.DrawArrays(gl.TRIANGLES, 0, int32(len(sphereVerts)))
 
 		// Maintenance
 		window.SwapBuffers()
