@@ -19,6 +19,7 @@ import (
 	"github.com/go-gl/gl/v4.1-core/gl"
 	"github.com/go-gl/glfw/v3.2/glfw"
 	"github.com/go-gl/mathgl/mgl32"
+	"github.com/golang-ui/nuklear/nk"
 )
 
 const windowWidth = 800
@@ -54,6 +55,19 @@ func main() {
 	version := gl.GoStr(gl.GetString(gl.VERSION))
 	fmt.Println("OpenGL version", version)
 
+	// Init nuklear gui
+	ctx := nk.NkPlatformInit(window, nk.PlatformInstallCallbacks)
+
+	// Create font
+	atlas := nk.NewFontAtlas()
+	nk.NkFontStashBegin(&atlas)
+	//sansFont := nk.NkFontAtlasAddFromBytes(atlas, MustAsset("assets/FreeSans.ttf"), 16, nil)
+	sansFont := nk.NkFontAtlasAddDefault(atlas, 16, nil)
+	nk.NkFontStashEnd()
+	if sansFont != nil {
+		nk.NkStyleSetFont(ctx, sansFont.Handle())
+	}
+
 	// Configure the vertex and fragment shaders
 	program, err := newProgram(vertexShader, fragmentShader)
 	if err != nil {
@@ -87,7 +101,7 @@ func main() {
 
 	sphereModel, _ := readOBJ("lowPolySphere.obj")
 	sphereVerts := sphereModel.ToArrayXYZUVN1N2N3()
-	println("-------> len:  ", len(sphereVerts))
+
 	// Configure the vertex data
 	var vao uint32
 	gl.GenVertexArrays(1, &vao)
