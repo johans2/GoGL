@@ -198,6 +198,7 @@ func main() {
 
 	var activeVAO uint32 = vao
 	var activeLen int32 = int32(len(sphereVerts))
+	var buffer []byte = make([]byte, 256)
 
 	for !window.ShouldClose() {
 		//window.MakeContextCurrent()
@@ -251,6 +252,9 @@ func main() {
 				if nk.NkButtonLabel(ctxGUI, "button") > 0 {
 					log.Println("[INFO] button pressed!")
 				}
+
+				nk.NkEditStringZeroTerminated(ctxGUI, nk.EditField,
+					buffer, 256, nk.NkFilterDefault)
 			}
 		}
 		nk.NkEnd(ctxGUI)
