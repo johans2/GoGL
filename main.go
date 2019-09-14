@@ -126,14 +126,13 @@ func main() {
 	gl.BindFragDataLocation(program, 0, gl.Str("outputColor\x00"))
 
 	// Load the texture
-	texture, err := newTexture("square.png")
+	texture, err := newTexture("Assets/square.png")
 	if err != nil {
 		log.Fatalln(err)
 	}
 
 	// Load the model from the obj file
-	sphereModel, _ := readOBJ("lowPolySphere.obj")
-	//sphereModel, _ := readOBJ("box.obj")
+	sphereModel, _ := readOBJ("Assets/lowPolySphere.obj")
 	sphereVerts := sphereModel.ToArrayXYZUVN1N2N3()
 
 	// Configure the vertex data
