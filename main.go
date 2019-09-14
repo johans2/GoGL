@@ -132,8 +132,10 @@ func main() {
 	// Load the model from the obj file
 	sphereModel, _ := readOBJ("Assets/lowPolySphere.obj")
 	sphereVerts := sphereModel.ToArrayXYZUVN1N2N3()
+	boxModel, _ := readOBJ("Assets/box.obj")
+	boxVerts := boxModel.ToArrayXYZUVN1N2N3()
 
-	// Configure the vertex data
+	// Configure the vertex data 1-------------------------------
 	var vao uint32
 	gl.GenVertexArrays(1, &vao)
 	gl.BindVertexArray(vao)
@@ -158,6 +160,31 @@ func main() {
 	gl.EnableVertexAttribArray(normalAttrib)
 	gl.VertexAttribPointer(normalAttrib, 3, gl.FLOAT, false, 8*4, gl.PtrOffset(5*4))
 
+	// Configure the vertex data 2-----------------------------
+	var vao2 uint32
+	gl.GenVertexArrays(1, &vao2)
+	gl.BindVertexArray(vao2)
+
+	var vbo2 uint32
+	gl.GenBuffers(1, &vbo2)
+	gl.BindBuffer(gl.ARRAY_BUFFER, vbo2)
+	gl.BufferData(gl.ARRAY_BUFFER, len(boxVerts)*4, gl.Ptr(boxVerts), gl.STATIC_DRAW)
+
+	// Get the vertex attribute from the shader and point it to data
+	vertAttrib2 := uint32(gl.GetAttribLocation(program, gl.Str("vert\x00")))
+	gl.EnableVertexAttribArray(vertAttrib2)
+	gl.VertexAttribPointer(vertAttrib2, 3, gl.FLOAT, false, 8*4, gl.PtrOffset(0))
+
+	// Get the texCoord attribute from the shader and point it to data
+	texCoordAttrib2 := uint32(gl.GetAttribLocation(program, gl.Str("vertTexCoord\x00")))
+	gl.EnableVertexAttribArray(texCoordAttrib2)
+	gl.VertexAttribPointer(texCoordAttrib2, 2, gl.FLOAT, false, 8*4, gl.PtrOffset(3*4))
+
+	// Get the normal attribute from the shader and point it to data
+	normalAttrib2 := uint32(gl.GetAttribLocation(program, gl.Str("normal\x00")))
+	gl.EnableVertexAttribArray(normalAttrib2)
+	gl.VertexAttribPointer(normalAttrib2, 3, gl.FLOAT, false, 8*4, gl.PtrOffset(5*4))
+
 	// Configure global settings
 	gl.Enable(gl.DEPTH_TEST)
 	gl.Enable(gl.CULL_FACE)
@@ -169,6 +196,9 @@ func main() {
 
 	log.Printf("Finished setup. Now rendering..")
 
+	var activeVAO uint32 = vao
+	var activeLen int32 = int32(len(sphereVerts))
+
 	for !window.ShouldClose() {
 		//window.MakeContextCurrent()
 		gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
@@ -178,7 +208,7 @@ func main() {
 		gl.ClearColor(1.0, 1.0, 1.0, 1.0)
 
 		// Update
-		rotSpeed := 0.1
+		rotSpeed := 0.5
 		time := glfw.GetTime()
 		elapsed := time - previousTime
 		previousTime = time
@@ -190,12 +220,12 @@ func main() {
 		gl.UseProgram(program)
 		gl.UniformMatrix4fv(modelUniform, 1, false, &model[0])
 
-		gl.BindVertexArray(vao)
+		gl.BindVertexArray(activeVAO)
 
 		gl.ActiveTexture(gl.TEXTURE0)
 		gl.BindTexture(gl.TEXTURE_2D, texture)
 
-		gl.DrawArrays(gl.TRIANGLES, 0, int32(len(sphereVerts)))
+		gl.DrawArrays(gl.TRIANGLES, 0, activeLen)
 
 		// BEGIN GUI
 		// Layout GUI
@@ -208,10 +238,12 @@ func main() {
 			nk.NkLayoutRowStatic(ctxGUI, 30, 80, 1)
 			{
 				if nk.NkButtonLabel(ctxGUI, "button") > 0 {
-					log.Println("[INFO] button pressed!")
+					activeVAO = vao
+					activeLen = int32(len(sphereVerts))
 				}
 				if nk.NkButtonLabel(ctxGUI, "button2") > 0 {
-					log.Println("[INFO] button pressed!")
+					activeVAO = vao2
+					activeLen = int32(len(boxVerts))
 				}
 				if nk.NkButtonLabel(ctxGUI, "button") > 0 {
 					log.Println("[INFO] button pressed!")
@@ -238,6 +270,10 @@ func main() {
 
 	//nk.NkPlatformShutdown()
 	//glfw.Terminate()
+}
+
+func createAndBindVAO(id *uint32, verts []float32) {
+
 }
 
 // Set the working directory to the root of Go package, so that its assets can be accessed.
