@@ -56,6 +56,7 @@ func main() {
 	defer glfw.Terminate()
 
 	glfw.WindowHint(glfw.Resizable, glfw.False)
+
 	glfw.WindowHint(glfw.ContextVersionMajor, 4)
 	glfw.WindowHint(glfw.ContextVersionMinor, 1)
 	glfw.WindowHint(glfw.OpenGLProfile, glfw.OpenGLCoreProfile)
@@ -64,6 +65,12 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+
+	windowGUI, err := glfw.CreateWindow(windowWidth, windowHeight, "GUI", nil, nil)
+	if err != nil {
+		panic(err)
+	}
+
 	window.MakeContextCurrent()
 
 	// Initialize Glow
@@ -74,9 +81,15 @@ func main() {
 	version := gl.GoStr(gl.GetString(gl.VERSION))
 	fmt.Println("OpenGL version", version)
 
+	windowGUI.MakeContextCurrent()
+	// Initialize Glow
+	if err := gl.Init(); err != nil {
+		panic(err)
+	}
+
 	// Init nuklear gui
 	log.Printf("NkPlatformInit")
-	ctx := nk.NkPlatformInit(window, nk.PlatformInstallCallbacks)
+	ctxGUI := nk.NkPlatformInit(windowGUI, nk.PlatformInstallCallbacks)
 
 	// Create font
 	atlas := nk.NewFontAtlas()
@@ -85,13 +98,15 @@ func main() {
 	sansFont := nk.NkFontAtlasAddDefault(atlas, 16, nil)
 	nk.NkFontStashEnd()
 	if sansFont != nil {
-		nk.NkStyleSetFont(ctx, sansFont.Handle())
+		nk.NkStyleSetFont(ctxGUI, sansFont.Handle())
 	}
 	log.Println("Finished setting up Nk-GUI")
 
 	state := &State{
 		bgColor: nk.NkRgba(28, 48, 62, 255),
 	}
+
+	window.MakeContextCurrent()
 
 	// Configure the vertex and fragment shaders
 	program, err := newProgram(vertexShader, fragmentShader)
@@ -129,7 +144,7 @@ func main() {
 	}
 
 	// Load the model from the obj file
-	sphereModel, _ := readOBJ("box.obj")
+	sphereModel, _ := readOBJ("lowPolySphere.obj")
 	sphereVerts := sphereModel.ToArrayXYZUVN1N2N3()
 
 	// Configure the vertex data
@@ -159,6 +174,7 @@ func main() {
 
 	// Configure global settings
 	gl.Enable(gl.DEPTH_TEST)
+	gl.Enable(gl.CULL_FACE)
 	gl.DepthFunc(gl.LESS)
 	gl.ClearColor(1.0, 1.0, 1.0, 1.0)
 
@@ -168,39 +184,8 @@ func main() {
 	log.Printf("Finished setup. Now rendering..")
 
 	for !window.ShouldClose() {
+		window.MakeContextCurrent()
 		gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
-
-		// Layout GUI
-		nk.NkPlatformNewFrame()
-		bounds := nk.NkRect(50, 50, 230, 250)
-		update := nk.NkBegin(ctx, "Demo", bounds,
-			nk.WindowBorder|nk.WindowMovable|nk.WindowScalable|nk.WindowMinimizable|nk.WindowTitle)
-
-		if update > 0 {
-			nk.NkLayoutRowStatic(ctx, 30, 80, 1)
-			{
-				if nk.NkButtonLabel(ctx, "button") > 0 {
-					log.Println("[INFO] button pressed!")
-				}
-				if nk.NkButtonLabel(ctx, "button2") > 0 {
-					log.Println("[INFO] button pressed!")
-				}
-				if nk.NkButtonLabel(ctx, "button") > 0 {
-					log.Println("[INFO] button pressed!")
-				}
-				if nk.NkButtonLabel(ctx, "button") > 0 {
-					log.Println("[INFO] button pressed!")
-				}
-			}
-		}
-		nk.NkEnd(ctx)
-
-		// Render GUI
-		bg := make([]float32, 4)
-		nk.NkColorFv(bg, state.bgColor)
-		width, height := window.GetSize()
-		gl.Viewport(0, 0, int32(width), int32(height))
-		nk.NkPlatformRender(nk.AntiAliasingOn, maxVertexBuffer, maxElementBuffer)
 
 		// Update
 		rotSpeed := 0.1
@@ -210,9 +195,6 @@ func main() {
 
 		angle += (elapsed * rotSpeed)
 		model = mgl32.HomogRotate3D(float32(angle), mgl32.Vec3{0, 1, 0})
-
-		gl.Enable(gl.CULL_FACE)
-		gl.Enable(gl.DEPTH_TEST)
 
 		// Render
 		gl.UseProgram(program)
@@ -224,9 +206,48 @@ func main() {
 		gl.BindTexture(gl.TEXTURE_2D, texture)
 
 		gl.DrawArrays(gl.TRIANGLES, 0, int32(len(sphereVerts)))
-
 		// Maintenance
 		window.SwapBuffers()
+		glfw.PollEvents()
+
+		windowGUI.MakeContextCurrent()
+
+		// BEGIN GUI
+		// Layout GUI
+		nk.NkPlatformNewFrame()
+		bounds := nk.NkRect(50, 50, 230, 250)
+		update := nk.NkBegin(ctxGUI, "Demo", bounds,
+			nk.WindowBorder|nk.WindowMovable|nk.WindowScalable|nk.WindowMinimizable|nk.WindowTitle)
+
+		if update > 0 {
+			nk.NkLayoutRowStatic(ctxGUI, 30, 80, 1)
+			{
+				if nk.NkButtonLabel(ctxGUI, "button") > 0 {
+					log.Println("[INFO] button pressed!")
+				}
+				if nk.NkButtonLabel(ctxGUI, "button2") > 0 {
+					log.Println("[INFO] button pressed!")
+				}
+				if nk.NkButtonLabel(ctxGUI, "button") > 0 {
+					log.Println("[INFO] button pressed!")
+				}
+				if nk.NkButtonLabel(ctxGUI, "button") > 0 {
+					log.Println("[INFO] button pressed!")
+				}
+			}
+		}
+		nk.NkEnd(ctxGUI)
+
+		// Render GUI
+		bg := make([]float32, 4)
+		nk.NkColorFv(bg, state.bgColor)
+		width, height := windowGUI.GetSize()
+		gl.Viewport(0, 0, int32(width), int32(height))
+		nk.NkPlatformRender(nk.AntiAliasingOn, maxVertexBuffer, maxElementBuffer)
+		// END GUI
+
+		// Maintenance
+		windowGUI.SwapBuffers()
 		glfw.PollEvents()
 	}
 
