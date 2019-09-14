@@ -66,11 +66,6 @@ func main() {
 		panic(err)
 	}
 
-	windowGUI, err := glfw.CreateWindow(windowWidth, windowHeight, "GUI", nil, nil)
-	if err != nil {
-		panic(err)
-	}
-
 	window.MakeContextCurrent()
 
 	// Initialize Glow
@@ -81,15 +76,9 @@ func main() {
 	version := gl.GoStr(gl.GetString(gl.VERSION))
 	fmt.Println("OpenGL version", version)
 
-	windowGUI.MakeContextCurrent()
-	// Initialize Glow
-	if err := gl.Init(); err != nil {
-		panic(err)
-	}
-
 	// Init nuklear gui
 	log.Printf("NkPlatformInit")
-	ctxGUI := nk.NkPlatformInit(windowGUI, nk.PlatformInstallCallbacks)
+	ctxGUI := nk.NkPlatformInit(window, nk.PlatformInstallCallbacks)
 
 	// Create font
 	atlas := nk.NewFontAtlas()
@@ -145,6 +134,7 @@ func main() {
 
 	// Load the model from the obj file
 	sphereModel, _ := readOBJ("lowPolySphere.obj")
+	//sphereModel, _ := readOBJ("box.obj")
 	sphereVerts := sphereModel.ToArrayXYZUVN1N2N3()
 
 	// Configure the vertex data
@@ -184,8 +174,12 @@ func main() {
 	log.Printf("Finished setup. Now rendering..")
 
 	for !window.ShouldClose() {
-		window.MakeContextCurrent()
+		//window.MakeContextCurrent()
 		gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
+		gl.Enable(gl.DEPTH_TEST)
+		gl.Enable(gl.CULL_FACE)
+		gl.DepthFunc(gl.LESS)
+		gl.ClearColor(1.0, 1.0, 1.0, 1.0)
 
 		// Update
 		rotSpeed := 0.1
@@ -207,10 +201,10 @@ func main() {
 
 		gl.DrawArrays(gl.TRIANGLES, 0, int32(len(sphereVerts)))
 		// Maintenance
-		window.SwapBuffers()
-		glfw.PollEvents()
+		//window.SwapBuffers()
+		//glfw.PollEvents()
 
-		windowGUI.MakeContextCurrent()
+		//windowGUI.MakeContextCurrent()
 
 		// BEGIN GUI
 		// Layout GUI
@@ -241,13 +235,13 @@ func main() {
 		// Render GUI
 		bg := make([]float32, 4)
 		nk.NkColorFv(bg, state.bgColor)
-		width, height := windowGUI.GetSize()
+		width, height := window.GetSize()
 		gl.Viewport(0, 0, int32(width), int32(height))
 		nk.NkPlatformRender(nk.AntiAliasingOn, maxVertexBuffer, maxElementBuffer)
 		// END GUI
 
 		// Maintenance
-		windowGUI.SwapBuffers()
+		window.SwapBuffers()
 		glfw.PollEvents()
 	}
 
