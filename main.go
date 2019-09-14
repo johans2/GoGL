@@ -16,7 +16,8 @@ import (
 	"runtime"
 	"strings"
 
-	"github.com/go-gl/gl/v4.1-core/gl"
+	"github.com/go-gl/gl/v3.2-core/gl"
+	//"github.com/go-gl/gl/v4.1-core/gl"
 	"github.com/go-gl/glfw/v3.2/glfw"
 	"github.com/go-gl/mathgl/mgl32"
 	"github.com/golang-ui/nuklear/nk"
@@ -24,6 +25,24 @@ import (
 
 const windowWidth = 800
 const windowHeight = 600
+
+type Option uint8
+
+const (
+	Easy Option = 0
+	Hard Option = 1
+)
+
+const (
+	maxVertexBuffer  = 512 * 1024
+	maxElementBuffer = 128 * 1024
+)
+
+type State struct {
+	bgColor nk.Color
+	prop    int32
+	opt     Option
+}
 
 func init() {
 	// GLFW event handling must run on the main OS thread
@@ -56,6 +75,7 @@ func main() {
 	fmt.Println("OpenGL version", version)
 
 	// Init nuklear gui
+	log.Printf("NkPlatformInit")
 	ctx := nk.NkPlatformInit(window, nk.PlatformInstallCallbacks)
 
 	// Create font
@@ -67,6 +87,11 @@ func main() {
 	if sansFont != nil {
 		nk.NkStyleSetFont(ctx, sansFont.Handle())
 	}
+	log.Println("Finished setting up Nk-GUI")
+
+	state := &State{
+		bgColor: nk.NkRgba(28, 48, 62, 255),
+	}
 
 	// Configure the vertex and fragment shaders
 	program, err := newProgram(vertexShader, fragmentShader)
@@ -76,18 +101,22 @@ func main() {
 
 	gl.UseProgram(program)
 
+	// Set up projection matrix for shader
 	projection := mgl32.Perspective(mgl32.DegToRad(45.0), float32(windowWidth)/windowHeight, 0.1, 10.0)
 	projectionUniform := gl.GetUniformLocation(program, gl.Str("projection\x00"))
 	gl.UniformMatrix4fv(projectionUniform, 1, false, &projection[0])
 
+	// Set up view matrix for shader
 	camera := mgl32.LookAtV(mgl32.Vec3{3, 3, 3}, mgl32.Vec3{0, 0, 0}, mgl32.Vec3{0, 1, 0})
 	cameraUniform := gl.GetUniformLocation(program, gl.Str("camera\x00"))
 	gl.UniformMatrix4fv(cameraUniform, 1, false, &camera[0])
 
+	// Set up model martix for shader
 	model := mgl32.Ident4()
 	modelUniform := gl.GetUniformLocation(program, gl.Str("model\x00"))
 	gl.UniformMatrix4fv(modelUniform, 1, false, &model[0])
 
+	// Set up texture for shader
 	textureUniform := gl.GetUniformLocation(program, gl.Str("tex\x00"))
 	gl.Uniform1i(textureUniform, 0)
 
@@ -99,7 +128,8 @@ func main() {
 		log.Fatalln(err)
 	}
 
-	sphereModel, _ := readOBJ("lowPolySphere.obj")
+	// Load the model from the obj file
+	sphereModel, _ := readOBJ("box.obj")
 	sphereVerts := sphereModel.ToArrayXYZUVN1N2N3()
 
 	// Configure the vertex data
@@ -112,14 +142,17 @@ func main() {
 	gl.BindBuffer(gl.ARRAY_BUFFER, vbo)
 	gl.BufferData(gl.ARRAY_BUFFER, len(sphereVerts)*4, gl.Ptr(sphereVerts), gl.STATIC_DRAW)
 
+	// Get the vertex attribute from the shader and point it to data
 	vertAttrib := uint32(gl.GetAttribLocation(program, gl.Str("vert\x00")))
 	gl.EnableVertexAttribArray(vertAttrib)
 	gl.VertexAttribPointer(vertAttrib, 3, gl.FLOAT, false, 8*4, gl.PtrOffset(0))
 
+	// Get the texCoord attribute from the shader and point it to data
 	texCoordAttrib := uint32(gl.GetAttribLocation(program, gl.Str("vertTexCoord\x00")))
 	gl.EnableVertexAttribArray(texCoordAttrib)
 	gl.VertexAttribPointer(texCoordAttrib, 2, gl.FLOAT, false, 8*4, gl.PtrOffset(3*4))
 
+	// Get the normal attribute from the shader and point it to data
 	normalAttrib := uint32(gl.GetAttribLocation(program, gl.Str("normal\x00")))
 	gl.EnableVertexAttribArray(normalAttrib)
 	gl.VertexAttribPointer(normalAttrib, 3, gl.FLOAT, false, 8*4, gl.PtrOffset(5*4))
@@ -132,16 +165,54 @@ func main() {
 	angle := 0.0
 	previousTime := glfw.GetTime()
 
+	log.Printf("Finished setup. Now rendering..")
+
 	for !window.ShouldClose() {
 		gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
 
+		// Layout GUI
+		nk.NkPlatformNewFrame()
+		bounds := nk.NkRect(50, 50, 230, 250)
+		update := nk.NkBegin(ctx, "Demo", bounds,
+			nk.WindowBorder|nk.WindowMovable|nk.WindowScalable|nk.WindowMinimizable|nk.WindowTitle)
+
+		if update > 0 {
+			nk.NkLayoutRowStatic(ctx, 30, 80, 1)
+			{
+				if nk.NkButtonLabel(ctx, "button") > 0 {
+					log.Println("[INFO] button pressed!")
+				}
+				if nk.NkButtonLabel(ctx, "button2") > 0 {
+					log.Println("[INFO] button pressed!")
+				}
+				if nk.NkButtonLabel(ctx, "button") > 0 {
+					log.Println("[INFO] button pressed!")
+				}
+				if nk.NkButtonLabel(ctx, "button") > 0 {
+					log.Println("[INFO] button pressed!")
+				}
+			}
+		}
+		nk.NkEnd(ctx)
+
+		// Render GUI
+		bg := make([]float32, 4)
+		nk.NkColorFv(bg, state.bgColor)
+		width, height := window.GetSize()
+		gl.Viewport(0, 0, int32(width), int32(height))
+		nk.NkPlatformRender(nk.AntiAliasingOn, maxVertexBuffer, maxElementBuffer)
+
 		// Update
+		rotSpeed := 0.1
 		time := glfw.GetTime()
 		elapsed := time - previousTime
 		previousTime = time
 
-		angle += elapsed
+		angle += (elapsed * rotSpeed)
 		model = mgl32.HomogRotate3D(float32(angle), mgl32.Vec3{0, 1, 0})
+
+		gl.Enable(gl.CULL_FACE)
+		gl.Enable(gl.DEPTH_TEST)
 
 		// Render
 		gl.UseProgram(program)
@@ -158,6 +229,9 @@ func main() {
 		window.SwapBuffers()
 		glfw.PollEvents()
 	}
+
+	//nk.NkPlatformShutdown()
+	//glfw.Terminate()
 }
 
 func newProgram(vertexShaderSource, fragmentShaderSource string) (uint32, error) {
@@ -256,6 +330,7 @@ func newTexture(file string) (uint32, error) {
 	return texture, nil
 }
 
+// Shader code
 var vertexShader = `
 #version 330
 uniform mat4 projection;
