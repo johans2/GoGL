@@ -135,55 +135,11 @@ func main() {
 	boxModel, _ := readOBJ("Assets/box.obj")
 	boxVerts := boxModel.ToArrayXYZUVN1N2N3()
 
-	// Configure the vertex data 1-------------------------------
-	var vao uint32
-	gl.GenVertexArrays(1, &vao)
-	gl.BindVertexArray(vao)
-
-	var vbo uint32
-	gl.GenBuffers(1, &vbo)
-	gl.BindBuffer(gl.ARRAY_BUFFER, vbo)
-	gl.BufferData(gl.ARRAY_BUFFER, len(sphereVerts)*4, gl.Ptr(sphereVerts), gl.STATIC_DRAW)
-
-	// Get the vertex attribute from the shader and point it to data
-	vertAttrib := uint32(gl.GetAttribLocation(program, gl.Str("vert\x00")))
-	gl.EnableVertexAttribArray(vertAttrib)
-	gl.VertexAttribPointer(vertAttrib, 3, gl.FLOAT, false, 8*4, gl.PtrOffset(0))
-
-	// Get the texCoord attribute from the shader and point it to data
-	texCoordAttrib := uint32(gl.GetAttribLocation(program, gl.Str("vertTexCoord\x00")))
-	gl.EnableVertexAttribArray(texCoordAttrib)
-	gl.VertexAttribPointer(texCoordAttrib, 2, gl.FLOAT, false, 8*4, gl.PtrOffset(3*4))
-
-	// Get the normal attribute from the shader and point it to data
-	normalAttrib := uint32(gl.GetAttribLocation(program, gl.Str("normal\x00")))
-	gl.EnableVertexAttribArray(normalAttrib)
-	gl.VertexAttribPointer(normalAttrib, 3, gl.FLOAT, false, 8*4, gl.PtrOffset(5*4))
-
-	// Configure the vertex data 2-----------------------------
-	var vao2 uint32
-	gl.GenVertexArrays(1, &vao2)
-	gl.BindVertexArray(vao2)
-
-	var vbo2 uint32
-	gl.GenBuffers(1, &vbo2)
-	gl.BindBuffer(gl.ARRAY_BUFFER, vbo2)
-	gl.BufferData(gl.ARRAY_BUFFER, len(boxVerts)*4, gl.Ptr(boxVerts), gl.STATIC_DRAW)
-
-	// Get the vertex attribute from the shader and point it to data
-	vertAttrib2 := uint32(gl.GetAttribLocation(program, gl.Str("vert\x00")))
-	gl.EnableVertexAttribArray(vertAttrib2)
-	gl.VertexAttribPointer(vertAttrib2, 3, gl.FLOAT, false, 8*4, gl.PtrOffset(0))
-
-	// Get the texCoord attribute from the shader and point it to data
-	texCoordAttrib2 := uint32(gl.GetAttribLocation(program, gl.Str("vertTexCoord\x00")))
-	gl.EnableVertexAttribArray(texCoordAttrib2)
-	gl.VertexAttribPointer(texCoordAttrib2, 2, gl.FLOAT, false, 8*4, gl.PtrOffset(3*4))
-
-	// Get the normal attribute from the shader and point it to data
-	normalAttrib2 := uint32(gl.GetAttribLocation(program, gl.Str("normal\x00")))
-	gl.EnableVertexAttribArray(normalAttrib2)
-	gl.VertexAttribPointer(normalAttrib2, 3, gl.FLOAT, false, 8*4, gl.PtrOffset(5*4))
+	// Initialize the renderers
+	var sphereRenderer renderer
+	sphereRenderer.init(sphereVerts, program)
+	var boxRenderer renderer
+	boxRenderer.init(boxVerts, program)
 
 	// Configure global settings
 	gl.Enable(gl.DEPTH_TEST)
@@ -196,12 +152,14 @@ func main() {
 
 	log.Printf("Finished setup. Now rendering..")
 
-	var activeVAO uint32 = vao
-	var activeLen int32 = int32(len(sphereVerts))
+	//var activeVAO uint32 = vao
+	//var activeLen int32 = int32(len(sphereVerts))
 	var buffer []byte = make([]byte, 256)
 
+	var activeRenderer renderer = sphereRenderer
+
 	for !window.ShouldClose() {
-		//window.MakeContextCurrent()
+		// Need to reanable these things since Nuklear sets its own gl states when rendering.
 		gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
 		gl.Enable(gl.DEPTH_TEST)
 		gl.Enable(gl.CULL_FACE)
@@ -218,15 +176,8 @@ func main() {
 		model = mgl32.HomogRotate3D(float32(angle), mgl32.Vec3{0, 1, 0})
 
 		// Render
-		gl.UseProgram(program)
 		gl.UniformMatrix4fv(modelUniform, 1, false, &model[0])
-
-		gl.BindVertexArray(activeVAO)
-
-		gl.ActiveTexture(gl.TEXTURE0)
-		gl.BindTexture(gl.TEXTURE_2D, texture)
-
-		gl.DrawArrays(gl.TRIANGLES, 0, activeLen)
+		activeRenderer.IssueDrawCall(program, texture)
 
 		// BEGIN GUI
 		// Layout GUI
@@ -238,13 +189,11 @@ func main() {
 		if update > 0 {
 			nk.NkLayoutRowStatic(ctxGUI, 30, 80, 1)
 			{
-				if nk.NkButtonLabel(ctxGUI, "button") > 0 {
-					activeVAO = vao
-					activeLen = int32(len(sphereVerts))
+				if nk.NkButtonLabel(ctxGUI, "Sphere") > 0 {
+					activeRenderer = sphereRenderer
 				}
-				if nk.NkButtonLabel(ctxGUI, "button2") > 0 {
-					activeVAO = vao2
-					activeLen = int32(len(boxVerts))
+				if nk.NkButtonLabel(ctxGUI, "Box") > 0 {
+					activeRenderer = boxRenderer
 				}
 				if nk.NkButtonLabel(ctxGUI, "button") > 0 {
 					log.Println("[INFO] button pressed!")
