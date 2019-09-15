@@ -167,13 +167,8 @@ func main() {
 		model = mgl32.HomogRotate3D(float32(angle), mgl32.Vec3{0, 1, 0})
 
 		// Render
-		gl.UseProgram(program)
-		// projection * camera * model
 		MVP := projection.Mul4(camera.Mul4(model))
-		MVPuniform := gl.GetUniformLocation(program, gl.Str("MVP\x00"))
-		gl.UniformMatrix4fv(MVPuniform, 1, false, &MVP[0])
-
-		activeRenderer.IssueDrawCall(program, texture)
+		activeRenderer.IssueDrawCall(program, texture, MVP)
 
 		// BEGIN GUI
 		// Layout GUI

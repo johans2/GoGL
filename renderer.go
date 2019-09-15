@@ -1,6 +1,9 @@
 package main
 
-import "github.com/go-gl/gl/v3.2-core/gl"
+import (
+	"github.com/go-gl/gl/v3.2-core/gl"
+	"github.com/go-gl/mathgl/mgl32"
+)
 
 type renderer struct {
 	vao    uint32
@@ -34,9 +37,13 @@ func (r *renderer) init(verts []float32, program uint32) {
 	gl.VertexAttribPointer(normalAttrib, 3, gl.FLOAT, false, 8*4, gl.PtrOffset(5*4))
 }
 
-func (r *renderer) IssueDrawCall(shader uint32, texture uint32) {
+func (r *renderer) IssueDrawCall(shader uint32, texture uint32, MVP mgl32.Mat4) {
 	// Select the shader to use
 	gl.UseProgram(shader)
+
+	// Set the MVP for the object
+	MVPuniform := gl.GetUniformLocation(shader, gl.Str("MVP\x00"))
+	gl.UniformMatrix4fv(MVPuniform, 1, false, &MVP[0])
 
 	// Bind the vertex array object
 	gl.BindVertexArray(r.vao)
