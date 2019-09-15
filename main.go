@@ -110,10 +110,6 @@ func main() {
 
 	// Set up model martix for shader
 	model := mgl32.Ident4()
-	// projection * camera * model
-	MVP := projection.Mul4(camera.Mul4(model))
-	MVPuniform := gl.GetUniformLocation(program, gl.Str("MVP\x00"))
-	gl.UniformMatrix4fv(MVPuniform, 1, false, &MVP[0])
 
 	// Set up texture for shader
 	textureUniform := gl.GetUniformLocation(program, gl.Str("tex\x00"))
@@ -172,7 +168,11 @@ func main() {
 
 		// Render
 		gl.UseProgram(program)
-		//gl.UniformMatrix4fv(modelUniform, 1, false, &model[0])
+		// projection * camera * model
+		MVP := projection.Mul4(camera.Mul4(model))
+		MVPuniform := gl.GetUniformLocation(program, gl.Str("MVP\x00"))
+		gl.UniformMatrix4fv(MVPuniform, 1, false, &MVP[0])
+
 		activeRenderer.IssueDrawCall(program, texture)
 
 		// BEGIN GUI
@@ -219,10 +219,6 @@ func main() {
 
 	//nk.NkPlatformShutdown()
 	//glfw.Terminate()
-}
-
-func createAndBindVAO(id *uint32, verts []float32) {
-
 }
 
 // Set the working directory to the root of Go package, so that its assets can be accessed.
