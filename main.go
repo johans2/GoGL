@@ -104,18 +104,16 @@ func main() {
 
 	// Set up projection matrix for shader
 	projection := mgl32.Perspective(mgl32.DegToRad(45.0), float32(windowWidth)/windowHeight, 0.1, 10.0)
-	projectionUniform := gl.GetUniformLocation(program, gl.Str("projection\x00"))
-	gl.UniformMatrix4fv(projectionUniform, 1, false, &projection[0])
 
 	// Set up view matrix for shader
 	camera := mgl32.LookAtV(mgl32.Vec3{3, 3, 3}, mgl32.Vec3{0, 0, 0}, mgl32.Vec3{0, 1, 0})
-	cameraUniform := gl.GetUniformLocation(program, gl.Str("camera\x00"))
-	gl.UniformMatrix4fv(cameraUniform, 1, false, &camera[0])
 
 	// Set up model martix for shader
 	model := mgl32.Ident4()
-	modelUniform := gl.GetUniformLocation(program, gl.Str("model\x00"))
-	gl.UniformMatrix4fv(modelUniform, 1, false, &model[0])
+	// projection * camera * model
+	MVP := projection.Mul4(camera.Mul4(model))
+	MVPuniform := gl.GetUniformLocation(program, gl.Str("MVP\x00"))
+	gl.UniformMatrix4fv(MVPuniform, 1, false, &MVP[0])
 
 	// Set up texture for shader
 	textureUniform := gl.GetUniformLocation(program, gl.Str("tex\x00"))
@@ -174,7 +172,7 @@ func main() {
 
 		// Render
 		gl.UseProgram(program)
-		gl.UniformMatrix4fv(modelUniform, 1, false, &model[0])
+		//gl.UniformMatrix4fv(modelUniform, 1, false, &model[0])
 		activeRenderer.IssueDrawCall(program, texture)
 
 		// BEGIN GUI

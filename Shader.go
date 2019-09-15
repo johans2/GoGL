@@ -10,16 +10,14 @@ import (
 // Shader code
 var vertexShader = `
 #version 330
-uniform mat4 projection;
-uniform mat4 camera;
-uniform mat4 model;
+uniform mat4 MVP;
 in vec3 vert;
 in vec2 vertTexCoord;
 in vec3 normal;
 out vec2 fragTexCoord;
 void main() {
     fragTexCoord = vertTexCoord;
-    gl_Position = projection * camera * model * vec4(vert, 1);
+	gl_Position = MVP * vec4(vert, 1);
 }
 ` + "\x00"
 
