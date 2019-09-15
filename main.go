@@ -152,10 +152,7 @@ func main() {
 
 	log.Printf("Finished setup. Now rendering..")
 
-	//var activeVAO uint32 = vao
-	//var activeLen int32 = int32(len(sphereVerts))
 	var buffer []byte = make([]byte, 256)
-
 	var activeRenderer renderer = sphereRenderer
 
 	for !window.ShouldClose() {
@@ -176,6 +173,7 @@ func main() {
 		model = mgl32.HomogRotate3D(float32(angle), mgl32.Vec3{0, 1, 0})
 
 		// Render
+		gl.UseProgram(program)
 		gl.UniformMatrix4fv(modelUniform, 1, false, &model[0])
 		activeRenderer.IssueDrawCall(program, texture)
 
