@@ -105,8 +105,6 @@ func main() {
 		panic(err)
 	}
 
-	gl.UseProgram(program)
-
 	// Set up projection matrix for shader
 	projection := mgl32.Perspective(mgl32.DegToRad(45.0), float32(windowWidth)/windowHeight, 0.1, 10.0)
 
