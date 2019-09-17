@@ -31,6 +31,30 @@ void main() {
 }
 ` + "\x00"
 
+// Shader code
+var vertexShaderRed = `
+#version 330
+uniform mat4 MVP;
+in vec3 vert;
+in vec2 vertTexCoord;
+in vec3 normal;
+out vec2 fragTexCoord;
+void main() {
+    fragTexCoord = vertTexCoord;
+	gl_Position = MVP * vec4(vert, 1);
+}
+` + "\x00"
+
+var fragmentShaderRed = `
+#version 330
+uniform sampler2D tex;
+in vec2 fragTexCoord;
+out vec4 outputColor;
+void main() {
+    outputColor = vec4(1,0,0,1);
+}
+` + "\x00"
+
 func compileShader(source string, shaderType uint32) (uint32, error) {
 	shader := gl.CreateShader(shaderType)
 

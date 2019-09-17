@@ -100,6 +100,11 @@ func main() {
 		panic(err)
 	}
 
+	programRed, err := newProgram(vertexShaderRed, fragmentShaderRed)
+	if err != nil {
+		panic(err)
+	}
+
 	gl.UseProgram(program)
 
 	// Set up projection matrix for shader
@@ -111,14 +116,8 @@ func main() {
 	// Set up model martix for shader
 	model := mgl32.Ident4()
 
-	// Set up texture for shader
-	textureUniform := gl.GetUniformLocation(program, gl.Str("tex\x00"))
-	gl.Uniform1i(textureUniform, 0)
-
-	gl.BindFragDataLocation(program, 0, gl.Str("outputColor\x00"))
-
 	// Load the texture
-	texture, err := newTexture("Assets/square.png")
+	texture, err := newTexture("Assets/stonewall.png")
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -133,7 +132,7 @@ func main() {
 	var sphereRenderer renderer
 	sphereRenderer.init(sphereVerts, program)
 	var boxRenderer renderer
-	boxRenderer.init(boxVerts, program)
+	boxRenderer.init(boxVerts, programRed)
 
 	// Configure global settings
 	gl.Enable(gl.DEPTH_TEST)
@@ -146,8 +145,8 @@ func main() {
 
 	log.Printf("Finished setup. Now rendering..")
 
-	var buffer []byte = make([]byte, 256)
-	var activeRenderer renderer = sphereRenderer
+	var buffer = make([]byte, 256)
+	var activeRenderer = sphereRenderer
 
 	for !window.ShouldClose() {
 		// Need to reanable these things since Nuklear sets its own gl states when rendering.
@@ -168,7 +167,7 @@ func main() {
 
 		// Render
 		MVP := projection.Mul4(camera.Mul4(model))
-		activeRenderer.IssueDrawCall(program, texture, MVP)
+		activeRenderer.issueDrawCall(texture, MVP)
 
 		// BEGIN GUI
 		// Layout GUI
@@ -213,7 +212,7 @@ func main() {
 	}
 
 	//nk.NkPlatformShutdown()
-	//glfw.Terminate()
+	glfw.Terminate()
 }
 
 // Set the working directory to the root of Go package, so that its assets can be accessed.
