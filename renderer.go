@@ -44,6 +44,10 @@ func (r *renderer) init(verts []float32, program uint32) {
 	gl.BindFragDataLocation(r.shaderProgram, 0, gl.Str("outputColor\x00"))
 }
 
+func (r *renderer) setShader(shaderProgram uint32) {
+	r.shaderProgram = shaderProgram
+}
+
 func (r *renderer) issueDrawCall(texture uint32, MVP mgl32.Mat4) {
 	// Select the shader to use
 	gl.UseProgram(r.shaderProgram)

@@ -101,19 +101,9 @@ func main() {
 	shaderTex.loadFromFile("Assets/simpleTex.vert", "Assets/simpleTex.frag")
 	var shaderRed shader
 	shaderRed.loadFromFile("Assets/simpleRed.vert", "Assets/simpleRed.frag")
+	var shaderGreen shader
+	shaderGreen.loadFromFile("Assets/simpleGreen.vert", "Assets/simpleGreen.frag")
 
-	// Configure the vertex and fragment shaders
-	/*
-		program, err := newProgram(vertexShader, fragmentShader)
-		if err != nil {
-			panic(err)
-		}
-
-		programRed, err := newProgram(vertexShaderRed, fragmentShaderRed)
-		if err != nil {
-			panic(err)
-		}
-	*/
 	// Set up projection matrix for shader
 	projection := mgl32.Perspective(mgl32.DegToRad(45.0), float32(windowWidth)/windowHeight, 0.1, 10.0)
 
@@ -153,7 +143,8 @@ func main() {
 	log.Printf("Finished setup. Now rendering..")
 
 	var buffer = make([]byte, 256)
-	var activeRenderer = sphereRenderer
+	var activeRenderer *renderer
+	activeRenderer = &sphereRenderer
 
 	for !window.ShouldClose() {
 		// Need to reanable these things since Nuklear sets its own gl states when rendering.
@@ -187,13 +178,13 @@ func main() {
 			nk.NkLayoutRowStatic(ctxGUI, 30, 80, 1)
 			{
 				if nk.NkButtonLabel(ctxGUI, "Sphere") > 0 {
-					activeRenderer = sphereRenderer
+					activeRenderer = &sphereRenderer
 				}
 				if nk.NkButtonLabel(ctxGUI, "Box") > 0 {
-					activeRenderer = boxRenderer
+					activeRenderer = &boxRenderer
 				}
-				if nk.NkButtonLabel(ctxGUI, "button") > 0 {
-					log.Println("[INFO] button pressed!")
+				if nk.NkButtonLabel(ctxGUI, "Set green") > 0 {
+					activeRenderer.setShader(shaderGreen.program)
 				}
 				if nk.NkButtonLabel(ctxGUI, "button") > 0 {
 					log.Println("[INFO] button pressed!")
