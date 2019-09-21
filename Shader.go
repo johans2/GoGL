@@ -10,10 +10,71 @@ import (
 	"github.com/go-gl/gl/v3.2-core/gl"
 )
 
+type uniformType string
+
+const (
+	uniformFloat uniformType = "float"
+	uniformVec2  uniformType = "vec2"
+	uniformVec3  uniformType = "vec3"
+	uniformVec4  uniformType = "vec4"
+	uniformTex2D uniformType = "sampler2D"
+	uniformMat4  uniformType = "mat4"
+)
+
 type shader struct {
 	program    uint32
 	vertSource string
 	fragSource string
+	uniforms   []uniform
+}
+
+type uniform struct {
+	uType uniformType
+	name  string
+}
+
+func getUniforms(source string) []uniform {
+	uniforms := make([]uniform, 0)
+
+	lines := strings.Split(source, "\n")
+
+	for _, line := range lines {
+		fmt.Println("LINE: ", line)
+		words := strings.Split(strings.Trim(line, " "), " ")
+
+		for _, w := range words {
+			fmt.Println("WORD: ", w)
+		}
+		fmt.Println("numwords: ", len(words))
+		if len(words) > 2 && words[0] == "uniform" {
+			uType, _ := getUniformTypeFromString(words[1])
+			name := strings.Trim(strings.Trim(words[2], "\r"), ";")
+			u := uniform{uType, name}
+			uniforms = append(uniforms, u)
+		}
+	}
+
+	return uniforms
+}
+
+// GetUniformTypeFromString Get the uniform type form a shader word
+func getUniformTypeFromString(word string) (uniformType, error) {
+	switch word {
+	case "float":
+		return uniformFloat, nil
+	case "vec2":
+		return uniformVec2, nil
+	case "vec3":
+		return uniformVec3, nil
+	case "vec4":
+		return uniformVec4, nil
+	case "sampler2D":
+		return uniformTex2D, nil
+	case "mat4":
+		return uniformMat4, nil
+	default:
+		return "", fmt.Errorf("Unsupported shader uniform: %s", word)
+	}
 }
 
 func (s *shader) loadFromFile(vertSource string, fragSource string) {
@@ -42,55 +103,10 @@ func (s *shader) loadFromFile(vertSource string, fragSource string) {
 		log.Fatalf("Shader compilation failed: %s", compileErr)
 	}
 
-}
+	s.uniforms = append(s.uniforms, getUniforms(s.vertSource)...)
+	s.uniforms = append(s.uniforms, getUniforms(s.fragSource)...)
 
-// Shader code
-var vertexShader = `
-#version 330
-uniform mat4 MVP;
-in vec3 vert;
-in vec2 vertTexCoord;
-in vec3 normal;
-out vec2 fragTexCoord;
-void main() {
-    fragTexCoord = vertTexCoord;
-	gl_Position = MVP * vec4(vert, 1);
 }
-` + "\x00"
-
-var fragmentShader = `
-#version 330
-uniform sampler2D tex;
-in vec2 fragTexCoord;
-out vec4 outputColor;
-void main() {
-    outputColor = texture(tex, fragTexCoord);
-}
-` + "\x00"
-
-// Shader code
-var vertexShaderRed = `
-#version 330
-uniform mat4 MVP;
-in vec3 vert;
-in vec2 vertTexCoord;
-in vec3 normal;
-out vec2 fragTexCoord;
-void main() {
-    fragTexCoord = vertTexCoord;
-	gl_Position = MVP * vec4(vert, 1);
-}
-` + "\x00"
-
-var fragmentShaderRed = `
-#version 330
-uniform sampler2D tex;
-in vec2 fragTexCoord;
-out vec4 outputColor;
-void main() {
-    outputColor = vec4(1,0,0,1);
-}
-` + "\x00"
 
 func compileShader(source string, shaderType uint32) (uint32, error) {
 	shader := gl.CreateShader(shaderType)
