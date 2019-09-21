@@ -186,9 +186,6 @@ func main() {
 				if nk.NkButtonLabel(ctxGUI, "Set green") > 0 {
 					activeRenderer.setShader(shaderGreen.program)
 				}
-				if nk.NkButtonLabel(ctxGUI, "button") > 0 {
-					log.Println("[INFO] button pressed!")
-				}
 
 				nk.NkEditStringZeroTerminated(ctxGUI, nk.EditField,
 					buffer, 256, nk.NkFilterDefault)

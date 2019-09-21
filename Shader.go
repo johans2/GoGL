@@ -39,13 +39,7 @@ func getUniforms(source string) []uniform {
 	lines := strings.Split(source, "\n")
 
 	for _, line := range lines {
-		fmt.Println("LINE: ", line)
 		words := strings.Split(strings.Trim(line, " "), " ")
-
-		for _, w := range words {
-			fmt.Println("WORD: ", w)
-		}
-		fmt.Println("numwords: ", len(words))
 		if len(words) > 2 && words[0] == "uniform" {
 			uType, _ := getUniformTypeFromString(words[1])
 			name := strings.Trim(strings.Trim(words[2], "\r"), ";")
