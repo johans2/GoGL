@@ -23,8 +23,10 @@ import (
 const windowWidth = 800
 const windowHeight = 600
 
+// Option Example code from nk package
 type Option uint8
 
+// Example code form nk package
 const (
 	Easy Option = 0
 	Hard Option = 1
@@ -35,6 +37,7 @@ const (
 	maxElementBuffer = 128 * 1024
 )
 
+// State Example code from nk package
 type State struct {
 	bgColor nk.Color
 	prop    int32
@@ -94,20 +97,23 @@ func main() {
 
 	window.MakeContextCurrent()
 
-	var shaderSimple shader
-	shaderSimple.loadFromFile("Assets/simple.vert", "Assets/simple.frag")
+	var shaderTex shader
+	shaderTex.loadFromFile("Assets/simpleTex.vert", "Assets/simpleTex.frag")
+	var shaderRed shader
+	shaderRed.loadFromFile("Assets/simpleRed.vert", "Assets/simpleRed.frag")
 
 	// Configure the vertex and fragment shaders
-	program, err := newProgram(vertexShader, fragmentShader)
-	if err != nil {
-		panic(err)
-	}
+	/*
+		program, err := newProgram(vertexShader, fragmentShader)
+		if err != nil {
+			panic(err)
+		}
 
-	programRed, err := newProgram(vertexShaderRed, fragmentShaderRed)
-	if err != nil {
-		panic(err)
-	}
-
+		programRed, err := newProgram(vertexShaderRed, fragmentShaderRed)
+		if err != nil {
+			panic(err)
+		}
+	*/
 	// Set up projection matrix for shader
 	projection := mgl32.Perspective(mgl32.DegToRad(45.0), float32(windowWidth)/windowHeight, 0.1, 10.0)
 
@@ -131,9 +137,9 @@ func main() {
 
 	// Initialize the renderers
 	var sphereRenderer renderer
-	sphereRenderer.init(sphereVerts, program)
+	sphereRenderer.init(sphereVerts, shaderTex.program)
 	var boxRenderer renderer
-	boxRenderer.init(boxVerts, programRed)
+	boxRenderer.init(boxVerts, shaderRed.program)
 
 	// Configure global settings
 	gl.Enable(gl.DEPTH_TEST)
