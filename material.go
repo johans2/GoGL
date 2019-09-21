@@ -67,7 +67,6 @@ type matFieldVec2 struct {
 }
 
 func (f matFieldVec2) draw(glContext *nk.Context) {
-	//nk.NkPropertyInt(ctx, "Compression:", 0, &state.prop, 100, 10, 1)
 	nk.NkPropertyFloat(glContext, "x: ", -9999, &f.x, 9999, 0.1, 0.01)
 	nk.NkPropertyFloat(glContext, "y: ", -9999, &f.y, 9999, 0.1, 0.01)
 }
