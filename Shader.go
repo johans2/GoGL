@@ -2,10 +2,47 @@ package main
 
 import (
 	"fmt"
+	"io/ioutil"
+	"log"
+	"os"
 	"strings"
 
 	"github.com/go-gl/gl/v3.2-core/gl"
 )
+
+type shader struct {
+	program    uint32
+	vertSource string
+	fragSource string
+}
+
+func (s *shader) loadFromFile(vertSource string, fragSource string) {
+	vertFile, errV := os.Open(vertSource)
+	fragFile, errF := os.Open(fragSource)
+	defer vertFile.Close()
+	defer fragFile.Close()
+
+	if errV != nil {
+		log.Fatalf("failed opening vertex program file: %s", errV)
+	}
+	if errF != nil {
+		log.Fatalf("failed opening fragment program file: %s", errF)
+	}
+
+	vertBytes, errV := ioutil.ReadAll(vertFile)
+	fragBytes, errF := ioutil.ReadAll(fragFile)
+
+	s.vertSource = string(vertBytes) + "\x00"
+	s.fragSource = string(fragBytes) + "\x00"
+
+	var compileErr error
+	s.program, compileErr = newProgram(s.vertSource, s.fragSource)
+
+	if compileErr != nil {
+		log.Fatalf("Shader compilation failed: %s", compileErr)
+	}
+
+}
 
 // Shader code
 var vertexShader = `

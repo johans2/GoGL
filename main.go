@@ -94,6 +94,9 @@ func main() {
 
 	window.MakeContextCurrent()
 
+	var shaderSimple shader
+	shaderSimple.loadFromFile("Assets/simple.vert", "Assets/simple.frag")
+
 	// Configure the vertex and fragment shaders
 	program, err := newProgram(vertexShader, fragmentShader)
 	if err != nil {
