@@ -72,7 +72,8 @@ func (f matFieldVec2) draw(glContext *nk.Context) {
 }
 
 func (f matFieldVec2) apply(shader *shader) {
-
+	uniform := gl.GetUniformLocation(shader.program, gl.Str(f.name+"\x00"))
+	gl.Uniform2f(uniform, f.x, f.y)
 }
 
 // Vec3
