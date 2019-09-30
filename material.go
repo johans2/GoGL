@@ -22,9 +22,11 @@ func (m *material) Init(shader *shader) {
 	for _, uniform := range shader.uniforms {
 		switch uniform.uType {
 		case uniformFloat:
-			m.fields = append(m.fields, matFieldFloat{uniform.name, 0})
+			m.fields = append(m.fields, &matFieldFloat{uniform.name, 0})
 		case uniformVec2:
-			m.fields = append(m.fields, matFieldVec2{uniform.name, 0, 0})
+			m.fields = append(m.fields, &matFieldVec2{uniform.name, 0, 0})
+		case uniformVec3:
+			m.fields = append(m.fields, &matFieldVec3{uniform.name, 1, 0, 0})
 		}
 
 	}
@@ -50,11 +52,11 @@ type matFieldFloat struct {
 	value float32
 }
 
-func (f matFieldFloat) draw(glContext *nk.Context) {
+func (f *matFieldFloat) draw(glContext *nk.Context) {
 	nk.NkPropertyFloat(glContext, "value: ", -9999, &f.value, 9999, 0.1, 0.01)
 }
 
-func (f matFieldFloat) apply(shader *shader) {
+func (f *matFieldFloat) apply(shader *shader) {
 	uniform := gl.GetUniformLocation(shader.program, gl.Str(f.name+"\x00"))
 	gl.Uniform1f(uniform, f.value)
 }
@@ -66,12 +68,12 @@ type matFieldVec2 struct {
 	y    float32
 }
 
-func (f matFieldVec2) draw(glContext *nk.Context) {
+func (f *matFieldVec2) draw(glContext *nk.Context) {
 	nk.NkPropertyFloat(glContext, "x: ", -9999, &f.x, 9999, 0.1, 0.01)
 	nk.NkPropertyFloat(glContext, "y: ", -9999, &f.y, 9999, 0.1, 0.01)
 }
 
-func (f matFieldVec2) apply(shader *shader) {
+func (f *matFieldVec2) apply(shader *shader) {
 	uniform := gl.GetUniformLocation(shader.program, gl.Str(f.name+"\x00"))
 	gl.Uniform2f(uniform, f.x, f.y)
 }
@@ -85,12 +87,13 @@ type matFieldVec3 struct {
 }
 
 func (f *matFieldVec3) draw(glContext *nk.Context) {
-	//nk.NkPropertyInt(ctx, "Compression:", 0, &state.prop, 100, 10, 1)
-	nk.NkPropertyFloat(glContext, "x: ", -9999, &f.x, 9999, 0.1, 0.01)
-	nk.NkPropertyFloat(glContext, "y: ", -9999, &f.y, 9999, 0.1, 0.01)
-	nk.NkPropertyFloat(glContext, "z: ", -9999, &f.z, 9999, 0.1, 0.01)
+	nk.NkLabel(glContext, f.name, nk.TextLeft)
+	nk.NkPropertyFloat(glContext, "x: ", -9999, &f.x, 9999, 1, 1)
+	nk.NkPropertyFloat(glContext, "y: ", -9999, &f.y, 9999, 1, 1)
+	nk.NkPropertyFloat(glContext, "z: ", -9999, &f.z, 9999, 1, 1)
 }
 
 func (f *matFieldVec3) apply(shader *shader) {
-
+	uniform := gl.GetUniformLocation(shader.program, gl.Str(f.name+"\x00"))
+	gl.Uniform3f(uniform, f.x, f.y, f.z)
 }

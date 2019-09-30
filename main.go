@@ -20,8 +20,8 @@ import (
 	"github.com/golang-ui/nuklear/nk"
 )
 
-const windowWidth = 800
-const windowHeight = 600
+const windowWidth = 1600
+const windowHeight = 1200
 
 // Option Example code from nk package
 type Option uint8
@@ -103,6 +103,8 @@ func main() {
 	shaderRed.loadFromFile("Assets/simpleRed.vert", "Assets/simpleRed.frag")
 	var shaderGreen shader
 	shaderGreen.loadFromFile("Assets/simpleGreen.vert", "Assets/simpleGreen.frag")
+	var shaderUnlitColor shader
+	shaderUnlitColor.loadFromFile("Assets/unlitColor.vert", "Assets/unlitColor.frag")
 
 	// Set up projection matrix for shader
 	projection := mgl32.Perspective(mgl32.DegToRad(45.0), float32(windowWidth)/windowHeight, 0.1, 10.0)
@@ -124,6 +126,10 @@ func main() {
 	sphereVerts := sphereModel.ToArrayXYZUVN1N2N3()
 	boxModel, _ := readOBJ("Assets/box.obj")
 	boxVerts := boxModel.ToArrayXYZUVN1N2N3()
+
+	// init materials
+	var matUnlitColor material
+	matUnlitColor.Init(&shaderUnlitColor)
 
 	// Initialize the renderers
 	var sphereRenderer renderer
@@ -170,7 +176,7 @@ func main() {
 		// BEGIN GUI
 		// Layout GUI
 		nk.NkPlatformNewFrame()
-		bounds := nk.NkRect(50, 50, 230, 250)
+		bounds := nk.NkRect(20, 20, 230, 550)
 		update := nk.NkBegin(ctxGUI, "Demo", bounds,
 			nk.WindowBorder|nk.WindowMovable|nk.WindowScalable|nk.WindowMinimizable|nk.WindowTitle)
 
@@ -189,7 +195,10 @@ func main() {
 
 				nk.NkEditStringZeroTerminated(ctxGUI, nk.EditField,
 					buffer, 256, nk.NkFilterDefault)
+
+				matUnlitColor.drawUI(ctxGUI)
 			}
+
 		}
 		nk.NkEnd(ctxGUI)
 
