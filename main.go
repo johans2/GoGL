@@ -131,11 +131,14 @@ func main() {
 	var matUnlitColor material
 	matUnlitColor.Init(&shaderUnlitColor)
 
+	var redMat material
+	redMat.Init(&shaderRed)
+
 	// Initialize the renderers
 	var sphereRenderer renderer
-	sphereRenderer.init(sphereVerts, shaderTex.program)
+	sphereRenderer.init(sphereVerts, matUnlitColor)
 	var boxRenderer renderer
-	boxRenderer.init(boxVerts, shaderRed.program)
+	boxRenderer.init(boxVerts, redMat)
 
 	// Configure global settings
 	gl.Enable(gl.DEPTH_TEST)
@@ -176,13 +179,16 @@ func main() {
 		// BEGIN GUI
 		// Layout GUI
 		nk.NkPlatformNewFrame()
-		bounds := nk.NkRect(20, 20, 230, 550)
-		update := nk.NkBegin(ctxGUI, "Demo", bounds,
+		bounds := nk.NkRect(20, 20, 400, 550)
+		update := nk.NkBegin(ctxGUI, "Material inspector", bounds,
 			nk.WindowBorder|nk.WindowMovable|nk.WindowScalable|nk.WindowMinimizable|nk.WindowTitle)
 
 		if update > 0 {
 			nk.NkLayoutRowStatic(ctxGUI, 30, 80, 1)
 			{
+				nk.NkEditStringZeroTerminated(ctxGUI, nk.EditField, buffer, 256, nk.NkFilterDefault)
+				nk.NkEditStringZeroTerminated(ctxGUI, nk.EditField, buffer, 256, nk.NkFilterDefault)
+
 				if nk.NkButtonLabel(ctxGUI, "Sphere") > 0 {
 					activeRenderer = &sphereRenderer
 				}
@@ -190,13 +196,14 @@ func main() {
 					activeRenderer = &boxRenderer
 				}
 				if nk.NkButtonLabel(ctxGUI, "Set green") > 0 {
-					activeRenderer.setShader(shaderGreen.program)
+					//activeRenderer.setShader(shaderGreen.program)
 				}
 
-				nk.NkEditStringZeroTerminated(ctxGUI, nk.EditField,
-					buffer, 256, nk.NkFilterDefault)
-
 				matUnlitColor.drawUI(ctxGUI)
+
+				if nk.NkButtonLabel(ctxGUI, "Apply") > 0 {
+					activeRenderer.material.applyValues()
+				}
 			}
 
 		}

@@ -87,10 +87,13 @@ type matFieldVec3 struct {
 }
 
 func (f *matFieldVec3) draw(glContext *nk.Context) {
-	nk.NkLabel(glContext, f.name, nk.TextLeft)
-	nk.NkPropertyFloat(glContext, "x: ", -9999, &f.x, 9999, 1, 1)
-	nk.NkPropertyFloat(glContext, "y: ", -9999, &f.y, 9999, 1, 1)
-	nk.NkPropertyFloat(glContext, "z: ", -9999, &f.z, 9999, 1, 1)
+	nk.NkLayoutRowDynamic(glContext, 30, 4)
+	{
+		nk.NkLabel(glContext, f.name, nk.TextLeft)
+		nk.NkPropertyFloat(glContext, "x: ", -9999, &f.x, 9999, 1, 1)
+		nk.NkPropertyFloat(glContext, "y: ", -9999, &f.y, 9999, 1, 1)
+		nk.NkPropertyFloat(glContext, "z: ", -9999, &f.z, 9999, 1, 1)
+	}
 }
 
 func (f *matFieldVec3) apply(shader *shader) {
