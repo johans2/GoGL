@@ -130,15 +130,16 @@ func main() {
 	// init materials
 	var matUnlitColor material
 	matUnlitColor.Init(&shaderUnlitColor)
-
 	var redMat material
 	redMat.Init(&shaderRed)
+	var matTex material
+	matTex.Init(&shaderTex)
 
 	// Initialize the renderers
 	var sphereRenderer renderer
 	sphereRenderer.init(sphereVerts, matUnlitColor)
 	var boxRenderer renderer
-	boxRenderer.init(boxVerts, redMat)
+	boxRenderer.init(boxVerts, matTex)
 
 	// Configure global settings
 	gl.Enable(gl.DEPTH_TEST)
@@ -199,7 +200,8 @@ func main() {
 					//activeRenderer.setShader(shaderGreen.program)
 				}
 
-				matUnlitColor.drawUI(ctxGUI)
+				activeRenderer.material.drawUI(ctxGUI)
+				//matUnlitColor.drawUI(ctxGUI)
 
 				if nk.NkButtonLabel(ctxGUI, "Apply") > 0 {
 					activeRenderer.material.applyValues()
