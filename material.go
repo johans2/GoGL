@@ -11,8 +11,15 @@ import (
 var texUnit int32
 
 type material struct {
-	shader *shader
-	fields []materialField
+	shader      *shader
+	fields      []materialField
+	texBindings []textureBinding
+}
+
+type textureBinding struct {
+	texUnit         uint32
+	glTexID         uint32
+	uniformLocation int32
 }
 
 type materialField interface {
