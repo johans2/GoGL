@@ -55,6 +55,7 @@ func (m *material) drawUI(glContext *nk.Context) {
 
 func (m *material) applyValues() {
 	texUnit = 0
+	// Clear texturebinding list
 	for _, field := range m.fields {
 		field.apply(m.shader)
 	}
@@ -174,4 +175,10 @@ func (t *matFieldTexture) apply(shader *shader) {
 	gl.BindTexture(gl.TEXTURE_2D, t.tex.id)
 
 	texUnit++
+
+	// In new texbindingstruct
+	// Set texunit
+	// Set texid
+	// Set uniformlocation
+	// Add to texturebindingList
 }
