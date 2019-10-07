@@ -1,6 +1,9 @@
 package main
 
 import (
+	"bytes"
+	"log"
+
 	"github.com/go-gl/gl/v3.2-core/gl"
 	"github.com/golang-ui/nuklear/nk"
 )
@@ -139,14 +142,17 @@ type matFieldTexture struct {
 }
 
 func (t *matFieldTexture) draw(glContext *nk.Context) {
-	t.filePath = make([]byte, 1024)
+	//t.filePath = make([]byte, 1024)
 	nk.NkEditStringZeroTerminated(glContext, nk.EditField, t.filePath, 1024, nk.NkFilterDefault)
 }
 
 func (t *matFieldTexture) apply(shader *shader) {
 	// Load it from file
-	pathString := string(t.filePath[:])
+	n := bytes.IndexByte(t.filePath, 0)
+	pathString := string(t.filePath[:n])
 	t.tex.loadFromFile(pathString)
+
+	log.Printf(pathString)
 
 	// Get the uniform location
 	uniform := gl.GetUniformLocation(shader.program, gl.Str(t.name+"\x00"))
