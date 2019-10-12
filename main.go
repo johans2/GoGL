@@ -197,6 +197,7 @@ func main() {
 					if shaderError != nil {
 						nk.NkLayoutRowDynamic(ctxGUI, 60, 1)
 						{
+							log.Printf("ERROR: " + shaderError.Error())
 							nk.NkLabelWrap(ctxGUI, "ERROR: "+shaderError.Error())
 						}
 					}
