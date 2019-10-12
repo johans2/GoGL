@@ -6,6 +6,7 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
 	"go/build"
 	_ "image/png"
@@ -146,7 +147,8 @@ func main() {
 
 	log.Printf("Finished setup. Now rendering..")
 
-	var buffer = make([]byte, 256)
+	var bufferVertSource = make([]byte, 1024)
+	var bufferFragSource = make([]byte, 1024)
 	var activeRenderer *renderer
 	activeRenderer = &sphereRenderer
 
@@ -184,10 +186,21 @@ func main() {
 				nk.NkLayoutRowDynamic(ctxGUI, 30, 1)
 				{
 					nk.NkLabel(ctxGUI, "Vertex program:", nk.TextLeft)
-					nk.NkEditStringZeroTerminated(ctxGUI, nk.EditField, buffer, 256, nk.NkFilterDefault)
+					nk.NkEditStringZeroTerminated(ctxGUI, nk.EditField, bufferVertSource, 256, nk.NkFilterDefault)
 					nk.NkLabel(ctxGUI, "Fragment program:", nk.TextLeft)
-					nk.NkEditStringZeroTerminated(ctxGUI, nk.EditField, buffer, 256, nk.NkFilterDefault)
+					nk.NkEditStringZeroTerminated(ctxGUI, nk.EditField, bufferFragSource, 256, nk.NkFilterDefault)
 					if nk.NkButtonLabel(ctxGUI, "Compile") > 0 {
+						var newShader shader
+						nVert := bytes.IndexByte(bufferVertSource, 0)
+						pathStringVert := string(bufferVertSource[:nVert])
+						nFrag := bytes.IndexByte(bufferFragSource, 0)
+						pathStringFrag := string(bufferFragSource[:nFrag])
+
+						newShader.loadFromFile(pathStringVert, pathStringFrag)
+
+						var newMaterial material
+						newMaterial.Init(&newShader)
+						activeRenderer.setMaterial(newMaterial)
 					}
 					nk.NkLabel(ctxGUI, "-------------------------------------", nk.TextCentered)
 				}
