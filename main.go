@@ -122,26 +122,6 @@ func main() {
 	boxModel, _ := readOBJ("Assets/box.obj")
 	boxVerts := boxModel.ToArrayXYZUVN1N2N3()
 
-	// init materials
-	var matUnlitColor material
-	matUnlitColor.Init(&shaderUnlitColor)
-	var redMat material
-	redMat.Init(&shaderRed)
-	var matTex material
-	matTex.Init(&shaderTex)
-
-	// Initialize the renderers
-	var sphereRenderer renderer
-	sphereRenderer.init(sphereVerts, matUnlitColor)
-	var boxRenderer renderer
-	boxRenderer.init(boxVerts, matTex)
-
-	// Configure global settings
-	gl.Enable(gl.DEPTH_TEST)
-	gl.Enable(gl.CULL_FACE)
-	gl.DepthFunc(gl.LESS)
-	gl.ClearColor(1.0, 1.0, 1.0, 1.0)
-
 	angle := 0.0
 	previousTime := glfw.GetTime()
 
@@ -149,10 +129,15 @@ func main() {
 
 	var bufferVertSource = make([]byte, 1024)
 	var bufferFragSource = make([]byte, 1024)
-	var activeRenderer *renderer
-	activeRenderer = &sphereRenderer
+
 	var activeMaterial material
-	activeMaterial.Init(&shaderUnlitColor)
+	activeMaterial.init(&shaderRed)
+
+	var activeModel = sphereVerts
+
+	// Initialize the renderers
+	var modelRenderer renderer
+	modelRenderer.setData(activeModel, activeMaterial)
 
 	for !window.ShouldClose() {
 		// Need to reanable these things since Nuklear sets its own gl states when rendering.
@@ -173,7 +158,7 @@ func main() {
 
 		// Render
 		MVP := projection.Mul4(camera.Mul4(model))
-		activeRenderer.issueDrawCall(MVP)
+		modelRenderer.issueDrawCall(MVP)
 
 		// BEGIN GUI
 		// Layout GUI
@@ -201,32 +186,47 @@ func main() {
 						newShader.loadFromFile(pathStringVert, pathStringFrag)
 
 						var newMaterial material
-						newMaterial.Init(&newShader)
+						newMaterial.init(&newShader)
 						activeMaterial = newMaterial
-						activeRenderer.setMaterial(newMaterial)
+						//modelRenderer.setMaterial(newMaterial)
+						modelRenderer.setData(activeModel, activeMaterial)
 					}
 					nk.NkLabel(ctxGUI, "-------------------------------------", nk.TextCentered)
 				}
 
-				activeRenderer.material.drawUI(ctxGUI)
+				modelRenderer.material.drawUI(ctxGUI)
 
-				if nk.NkButtonLabel(ctxGUI, "Apply") > 0 {
-					activeRenderer.material.applyUniforms()
-				}
-				nk.NkLayoutRowDynamic(ctxGUI, 30, 1)
-				{
-					nk.NkLabel(ctxGUI, "-------------------------------------", nk.TextCentered)
+				if len(activeMaterial.fields) != 0 || len(activeMaterial.texBindings) != 0 {
+					nk.NkLayoutRowDynamic(ctxGUI, 30, 1)
+					{
+
+						if nk.NkButtonLabel(ctxGUI, "Apply") > 0 {
+							modelRenderer.setData(activeModel, activeMaterial)
+							modelRenderer.material.applyUniforms()
+							modelRenderer.material.bindTextures()
+						}
+						nk.NkLabel(ctxGUI, "-------------------------------------", nk.TextCentered)
+
+					}
 				}
 
 				nk.NkLayoutRowDynamic(ctxGUI, 30, 2)
 				{
 					if nk.NkButtonLabel(ctxGUI, "Sphere") > 0 {
-						//activeRenderer = &sphereRenderer
-						activeRenderer.init(sphereVerts, activeMaterial)
+						//modelRenderer.setData(sphereVerts, activeMaterial)
+						activeModel = sphereVerts
+						modelRenderer.setData(activeModel, activeMaterial)
+						modelRenderer.material.applyUniforms()
+						modelRenderer.material.bindTextures()
 					}
 					if nk.NkButtonLabel(ctxGUI, "Box") > 0 {
-						activeRenderer.init(boxVerts, activeMaterial)
+						//modelRenderer.setData(boxVerts, activeMaterial)
+						activeModel = boxVerts
+						modelRenderer.setData(activeModel, activeMaterial)
+						modelRenderer.material.applyUniforms()
+						modelRenderer.material.bindTextures()
 					}
+
 				}
 
 			}

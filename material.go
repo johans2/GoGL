@@ -17,7 +17,6 @@ type material struct {
 }
 
 type textureBinding struct {
-	texUnit         uint32
 	glTexID         uint32
 	uniformLocation int32
 }
@@ -28,7 +27,7 @@ type materialField interface {
 }
 
 // Material functions
-func (m *material) Init(shader *shader) {
+func (m *material) init(shader *shader) {
 	m.shader = shader
 
 	for _, uniform := range shader.uniforms {
@@ -62,12 +61,14 @@ func (m *material) applyUniforms() {
 }
 
 func (m *material) bindTextures() {
+	texUnit := uint32(0)
 	for _, texBinding := range m.texBindings {
 		// Set the texture uniform value
-		gl.Uniform1i(texBinding.uniformLocation, int32(texBinding.texUnit))
+		gl.Uniform1i(texBinding.uniformLocation, int32(texUnit))
 
-		gl.ActiveTexture(gl.TEXTURE0 + texBinding.texUnit)
+		gl.ActiveTexture(gl.TEXTURE0 + texUnit)
 		gl.BindTexture(gl.TEXTURE_2D, texBinding.glTexID)
+		texUnit++
 	}
 }
 
@@ -181,9 +182,6 @@ func (t *matFieldTexture) apply(mat *material) {
 	// Create and add a new texture binding struct
 	var texBind textureBinding
 	texBind.glTexID = t.tex.id
-	texBind.texUnit = uint32(texUnit)
 	texBind.uniformLocation = uniform
 	mat.texBindings = append(mat.texBindings, texBind)
-
-	texUnit++
 }

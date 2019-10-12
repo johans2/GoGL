@@ -12,7 +12,7 @@ type renderer struct {
 	material material
 }
 
-func (r *renderer) init(verts []float32, material material) {
+func (r *renderer) setData(verts []float32, material material) {
 	r.verts = verts
 	r.material = material
 	gl.GenVertexArrays(1, &r.vao)
@@ -37,16 +37,13 @@ func (r *renderer) init(verts []float32, material material) {
 	gl.EnableVertexAttribArray(normalAttrib)
 	gl.VertexAttribPointer(normalAttrib, 3, gl.FLOAT, false, 8*4, gl.PtrOffset(5*4))
 
-	// Set up texture for shader
-	textureUniform := gl.GetUniformLocation(r.material.shader.program, gl.Str("tex\x00"))
-	gl.Uniform1i(textureUniform, 0)
-
 	gl.BindFragDataLocation(r.material.shader.program, 0, gl.Str("outputColor\x00"))
 }
 
+/*
 func (r *renderer) setMaterial(material material) {
 	r.material = material
-}
+}*/
 
 func (r *renderer) issueDrawCall(MVP mgl32.Mat4) {
 	// Select the shader to use
