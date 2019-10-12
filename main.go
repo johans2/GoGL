@@ -199,27 +199,23 @@ func main() {
 					nk.NkLayoutRowDynamic(ctxGUI, 30, 1)
 					{
 						if nk.NkButtonLabel(ctxGUI, "Apply") > 0 {
-							modelRenderer.setData(activeModel, activeMaterial)
 							modelRenderer.material.applyUniforms()
-							modelRenderer.material.bindTextures()
 						}
 						nk.NkLabel(ctxGUI, "-------------------------------------", nk.TextCentered)
 					}
 				}
 
-				nk.NkLayoutRowDynamic(ctxGUI, 30, 2)
+				nk.NkLayoutRowDynamic(ctxGUI, 60, 2)
 				{
 					if nk.NkButtonLabel(ctxGUI, "Sphere") > 0 {
 						activeModel = sphereVerts
 						modelRenderer.setData(activeModel, activeMaterial)
 						modelRenderer.material.applyUniforms()
-						modelRenderer.material.bindTextures()
 					}
 					if nk.NkButtonLabel(ctxGUI, "Box") > 0 {
 						activeModel = boxVerts
 						modelRenderer.setData(activeModel, activeMaterial)
 						modelRenderer.material.applyUniforms()
-						modelRenderer.material.bindTextures()
 					}
 
 				}
