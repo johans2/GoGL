@@ -188,7 +188,6 @@ func main() {
 						var newMaterial material
 						newMaterial.init(&newShader)
 						activeMaterial = newMaterial
-						//modelRenderer.setMaterial(newMaterial)
 						modelRenderer.setData(activeModel, activeMaterial)
 					}
 					nk.NkLabel(ctxGUI, "-------------------------------------", nk.TextCentered)
@@ -199,28 +198,24 @@ func main() {
 				if len(activeMaterial.fields) != 0 || len(activeMaterial.texBindings) != 0 {
 					nk.NkLayoutRowDynamic(ctxGUI, 30, 1)
 					{
-
 						if nk.NkButtonLabel(ctxGUI, "Apply") > 0 {
 							modelRenderer.setData(activeModel, activeMaterial)
 							modelRenderer.material.applyUniforms()
 							modelRenderer.material.bindTextures()
 						}
 						nk.NkLabel(ctxGUI, "-------------------------------------", nk.TextCentered)
-
 					}
 				}
 
 				nk.NkLayoutRowDynamic(ctxGUI, 30, 2)
 				{
 					if nk.NkButtonLabel(ctxGUI, "Sphere") > 0 {
-						//modelRenderer.setData(sphereVerts, activeMaterial)
 						activeModel = sphereVerts
 						modelRenderer.setData(activeModel, activeMaterial)
 						modelRenderer.material.applyUniforms()
 						modelRenderer.material.bindTextures()
 					}
 					if nk.NkButtonLabel(ctxGUI, "Box") > 0 {
-						//modelRenderer.setData(boxVerts, activeMaterial)
 						activeModel = boxVerts
 						modelRenderer.setData(activeModel, activeMaterial)
 						modelRenderer.material.applyUniforms()

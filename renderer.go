@@ -40,11 +40,6 @@ func (r *renderer) setData(verts []float32, material material) {
 	gl.BindFragDataLocation(r.material.shader.program, 0, gl.Str("outputColor\x00"))
 }
 
-/*
-func (r *renderer) setMaterial(material material) {
-	r.material = material
-}*/
-
 func (r *renderer) issueDrawCall(MVP mgl32.Mat4) {
 	// Select the shader to use
 	gl.UseProgram(r.material.shader.program)
