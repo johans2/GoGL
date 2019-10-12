@@ -115,12 +115,6 @@ func main() {
 	// Set up model martix for shader
 	model := mgl32.Ident4()
 
-	// Load the texture
-	texture, err := newTexture("Assets/stonewall.png")
-	if err != nil {
-		log.Fatalln(err)
-	}
-
 	// Load the model from the obj file
 	sphereModel, _ := readOBJ("Assets/lowPolySphere.obj")
 	sphereVerts := sphereModel.ToArrayXYZUVN1N2N3()
@@ -175,7 +169,7 @@ func main() {
 
 		// Render
 		MVP := projection.Mul4(camera.Mul4(model))
-		activeRenderer.issueDrawCall(texture, MVP)
+		activeRenderer.issueDrawCall(MVP)
 
 		// BEGIN GUI
 		// Layout GUI
@@ -185,27 +179,39 @@ func main() {
 			nk.WindowBorder|nk.WindowMovable|nk.WindowScalable|nk.WindowMinimizable|nk.WindowTitle)
 
 		if update > 0 {
-			nk.NkLayoutRowStatic(ctxGUI, 30, 80, 1)
+			nk.NkLayoutRowStatic(ctxGUI, 10, 80, 1)
 			{
-				nk.NkEditStringZeroTerminated(ctxGUI, nk.EditField, buffer, 256, nk.NkFilterDefault)
-				nk.NkEditStringZeroTerminated(ctxGUI, nk.EditField, buffer, 256, nk.NkFilterDefault)
-
-				if nk.NkButtonLabel(ctxGUI, "Sphere") > 0 {
-					activeRenderer = &sphereRenderer
-				}
-				if nk.NkButtonLabel(ctxGUI, "Box") > 0 {
-					activeRenderer = &boxRenderer
-				}
-				if nk.NkButtonLabel(ctxGUI, "Set green") > 0 {
-					//activeRenderer.setShader(shaderGreen.program)
+				nk.NkLayoutRowDynamic(ctxGUI, 30, 1)
+				{
+					nk.NkLabel(ctxGUI, "Vertex program:", nk.TextLeft)
+					nk.NkEditStringZeroTerminated(ctxGUI, nk.EditField, buffer, 256, nk.NkFilterDefault)
+					nk.NkLabel(ctxGUI, "Fragment program:", nk.TextLeft)
+					nk.NkEditStringZeroTerminated(ctxGUI, nk.EditField, buffer, 256, nk.NkFilterDefault)
+					if nk.NkButtonLabel(ctxGUI, "Compile") > 0 {
+					}
+					nk.NkLabel(ctxGUI, "-------------------------------------", nk.TextCentered)
 				}
 
 				activeRenderer.material.drawUI(ctxGUI)
-				//matUnlitColor.drawUI(ctxGUI)
 
 				if nk.NkButtonLabel(ctxGUI, "Apply") > 0 {
 					activeRenderer.material.applyUniforms()
 				}
+				nk.NkLayoutRowDynamic(ctxGUI, 30, 1)
+				{
+					nk.NkLabel(ctxGUI, "-------------------------------------", nk.TextCentered)
+				}
+
+				nk.NkLayoutRowDynamic(ctxGUI, 30, 2)
+				{
+					if nk.NkButtonLabel(ctxGUI, "Sphere") > 0 {
+						activeRenderer = &sphereRenderer
+					}
+					if nk.NkButtonLabel(ctxGUI, "Box") > 0 {
+						activeRenderer = &boxRenderer
+					}
+				}
+
 			}
 
 		}

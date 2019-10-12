@@ -138,7 +138,7 @@ type matFieldVec4 struct {
 }
 
 func (v4 *matFieldVec4) draw(glContext *nk.Context) {
-	nk.NkLayoutRowDynamic(glContext, 30, 4)
+	nk.NkLayoutRowDynamic(glContext, 30, 5)
 	{
 		nk.NkLabel(glContext, v4.name, nk.TextLeft)
 		nk.NkPropertyFloat(glContext, "x: ", -9999, &v4.x, 9999, 1, 1)
@@ -161,7 +161,10 @@ type matFieldTexture struct {
 }
 
 func (t *matFieldTexture) draw(glContext *nk.Context) {
-	nk.NkEditStringZeroTerminated(glContext, nk.EditField, t.filePath, 1024, nk.NkFilterDefault)
+	nk.NkLayoutRowDynamic(glContext, 30, 1)
+	{
+		nk.NkEditStringZeroTerminated(glContext, nk.EditField, t.filePath, 1024, nk.NkFilterDefault)
+	}
 }
 
 func (t *matFieldTexture) apply(mat *material) {

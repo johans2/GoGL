@@ -48,7 +48,7 @@ func (r *renderer) setMaterial(material material) {
 	r.material = material
 }
 
-func (r *renderer) issueDrawCall(texture uint32, MVP mgl32.Mat4) {
+func (r *renderer) issueDrawCall(MVP mgl32.Mat4) {
 	// Select the shader to use
 	gl.UseProgram(r.material.shader.program)
 
