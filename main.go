@@ -204,7 +204,7 @@ func main() {
 				//matUnlitColor.drawUI(ctxGUI)
 
 				if nk.NkButtonLabel(ctxGUI, "Apply") > 0 {
-					activeRenderer.material.applyValues()
+					activeRenderer.material.applyUniforms()
 				}
 			}
 

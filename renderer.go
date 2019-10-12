@@ -59,9 +59,8 @@ func (r *renderer) issueDrawCall(texture uint32, MVP mgl32.Mat4) {
 	// Bind the vertex array object
 	gl.BindVertexArray(r.vao)
 
-	// Bind the created texture
-	gl.ActiveTexture(gl.TEXTURE0)
-	gl.BindTexture(gl.TEXTURE_2D, texture)
+	// Bind the material textures
+	r.material.bindTextures()
 
 	// Issue drawcall
 	gl.DrawArrays(gl.TRIANGLES, 0, int32(len(r.verts)))

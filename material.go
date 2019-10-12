@@ -24,7 +24,7 @@ type textureBinding struct {
 
 type materialField interface {
 	draw(glContext *nk.Context)
-	apply(shader *shader)
+	apply(mat *material)
 }
 
 // Material functions
@@ -53,11 +53,21 @@ func (m *material) drawUI(glContext *nk.Context) {
 	}
 }
 
-func (m *material) applyValues() {
+func (m *material) applyUniforms() {
 	texUnit = 0
 	// Clear texturebinding list
 	for _, field := range m.fields {
-		field.apply(m.shader)
+		field.apply(m)
+	}
+}
+
+func (m *material) bindTextures() {
+	for _, texBinding := range m.texBindings {
+		// Set the texture uniform value
+		gl.Uniform1i(texBinding.uniformLocation, int32(texBinding.texUnit))
+
+		gl.ActiveTexture(gl.TEXTURE0 + texBinding.texUnit)
+		gl.BindTexture(gl.TEXTURE_2D, texBinding.glTexID)
 	}
 }
 
@@ -73,8 +83,8 @@ func (f *matFieldFloat) draw(glContext *nk.Context) {
 	nk.NkPropertyFloat(glContext, "value: ", -9999, &f.value, 9999, 0.1, 0.01)
 }
 
-func (f *matFieldFloat) apply(shader *shader) {
-	uniform := gl.GetUniformLocation(shader.program, gl.Str(f.name+"\x00"))
+func (f *matFieldFloat) apply(mat *material) {
+	uniform := gl.GetUniformLocation(mat.shader.program, gl.Str(f.name+"\x00"))
 	gl.Uniform1f(uniform, f.value)
 }
 
@@ -90,8 +100,8 @@ func (v2 *matFieldVec2) draw(glContext *nk.Context) {
 	nk.NkPropertyFloat(glContext, "y: ", -9999, &v2.y, 9999, 0.1, 0.01)
 }
 
-func (v2 *matFieldVec2) apply(shader *shader) {
-	uniform := gl.GetUniformLocation(shader.program, gl.Str(v2.name+"\x00"))
+func (v2 *matFieldVec2) apply(mat *material) {
+	uniform := gl.GetUniformLocation(mat.shader.program, gl.Str(v2.name+"\x00"))
 	gl.Uniform2f(uniform, v2.x, v2.y)
 }
 
@@ -113,8 +123,8 @@ func (v3 *matFieldVec3) draw(glContext *nk.Context) {
 	}
 }
 
-func (v3 *matFieldVec3) apply(shader *shader) {
-	uniform := gl.GetUniformLocation(shader.program, gl.Str(v3.name+"\x00"))
+func (v3 *matFieldVec3) apply(mat *material) {
+	uniform := gl.GetUniformLocation(mat.shader.program, gl.Str(v3.name+"\x00"))
 	gl.Uniform3f(uniform, v3.x, v3.y, v3.z)
 }
 
@@ -138,11 +148,12 @@ func (v4 *matFieldVec4) draw(glContext *nk.Context) {
 	}
 }
 
-func (v4 *matFieldVec4) apply(shader *shader) {
-	uniform := gl.GetUniformLocation(shader.program, gl.Str(v4.name+"\x00"))
+func (v4 *matFieldVec4) apply(mat *material) {
+	uniform := gl.GetUniformLocation(mat.shader.program, gl.Str(v4.name+"\x00"))
 	gl.Uniform4f(uniform, v4.x, v4.y, v4.z, v4.w)
 }
 
+// Texture
 type matFieldTexture struct {
 	name     string
 	tex      texture
@@ -150,11 +161,10 @@ type matFieldTexture struct {
 }
 
 func (t *matFieldTexture) draw(glContext *nk.Context) {
-	//t.filePath = make([]byte, 1024)
 	nk.NkEditStringZeroTerminated(glContext, nk.EditField, t.filePath, 1024, nk.NkFilterDefault)
 }
 
-func (t *matFieldTexture) apply(shader *shader) {
+func (t *matFieldTexture) apply(mat *material) {
 	// Load it from file
 	n := bytes.IndexByte(t.filePath, 0)
 	pathString := string(t.filePath[:n])
@@ -163,22 +173,14 @@ func (t *matFieldTexture) apply(shader *shader) {
 	log.Printf(pathString)
 
 	// Get the uniform location
-	uniform := gl.GetUniformLocation(shader.program, gl.Str(t.name+"\x00"))
-	// Bind the uniforms to texture units/channels. e.g..
-	/*
-		glUniform1i(decalTexLocation, 0);
-		glUniform1i(bumpTexLocation,  1);
-	*/
-	gl.Uniform1i(uniform, texUnit)
-	// Get next available texture unit 0...1....2....3...etc
-	gl.ActiveTexture(gl.TEXTURE0 + uint32(texUnit))
-	gl.BindTexture(gl.TEXTURE_2D, t.tex.id)
+	uniform := gl.GetUniformLocation(mat.shader.program, gl.Str(t.name+"\x00"))
+
+	// Create and add a new texture binding struct
+	var texBind textureBinding
+	texBind.glTexID = t.tex.id
+	texBind.texUnit = uint32(texUnit)
+	texBind.uniformLocation = uniform
+	mat.texBindings = append(mat.texBindings, texBind)
 
 	texUnit++
-
-	// In new texbindingstruct
-	// Set texunit
-	// Set texid
-	// Set uniformlocation
-	// Add to texturebindingList
 }
