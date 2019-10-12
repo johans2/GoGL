@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"io/ioutil"
-	"log"
 	"os"
 	"strings"
 
@@ -71,17 +70,17 @@ func getUniformTypeFromString(word string) (uniformType, error) {
 	}
 }
 
-func (s *shader) loadFromFile(vertSource string, fragSource string) {
+func (s *shader) loadFromFile(vertSource string, fragSource string) error {
 	vertFile, errV := os.Open(vertSource)
 	fragFile, errF := os.Open(fragSource)
 	defer vertFile.Close()
 	defer fragFile.Close()
 
 	if errV != nil {
-		log.Fatalf("failed opening vertex program file: %s", errV)
+		return errV
 	}
 	if errF != nil {
-		log.Fatalf("failed opening fragment program file: %s", errF)
+		return errF
 	}
 
 	vertBytes, errV := ioutil.ReadAll(vertFile)
@@ -94,12 +93,12 @@ func (s *shader) loadFromFile(vertSource string, fragSource string) {
 	s.program, compileErr = newProgram(s.vertSource, s.fragSource)
 
 	if compileErr != nil {
-		log.Fatalf("Shader compilation failed: %s", compileErr)
+		return compileErr
 	}
 
 	s.uniforms = append(s.uniforms, getUniforms(s.vertSource)...)
 	s.uniforms = append(s.uniforms, getUniforms(s.fragSource)...)
-
+	return nil
 }
 
 func compileShader(source string, shaderType uint32) (uint32, error) {

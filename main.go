@@ -139,6 +139,8 @@ func main() {
 	var modelRenderer renderer
 	modelRenderer.setData(activeModel, activeMaterial)
 
+	var shaderError error
+
 	for !window.ShouldClose() {
 		// Need to reanable these things since Nuklear sets its own gl states when rendering.
 		gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
@@ -183,13 +185,22 @@ func main() {
 						nFrag := bytes.IndexByte(bufferFragSource, 0)
 						pathStringFrag := string(bufferFragSource[:nFrag])
 
-						newShader.loadFromFile(pathStringVert, pathStringFrag)
-
-						var newMaterial material
-						newMaterial.init(&newShader)
-						activeMaterial = newMaterial
-						modelRenderer.setData(activeModel, activeMaterial)
+						shaderError = newShader.loadFromFile(pathStringVert, pathStringFrag)
+						if shaderError == nil {
+							var newMaterial material
+							newMaterial.init(&newShader)
+							activeMaterial = newMaterial
+							modelRenderer.setData(activeModel, activeMaterial)
+						}
 					}
+
+					if shaderError != nil {
+						nk.NkLayoutRowDynamic(ctxGUI, 60, 1)
+						{
+							nk.NkLabelWrap(ctxGUI, "ERROR: "+shaderError.Error())
+						}
+					}
+
 					nk.NkLabel(ctxGUI, "-------------------------------------", nk.TextCentered)
 				}
 
