@@ -151,6 +151,8 @@ func main() {
 	var bufferFragSource = make([]byte, 1024)
 	var activeRenderer *renderer
 	activeRenderer = &sphereRenderer
+	var activeMaterial material
+	activeMaterial.Init(&shaderUnlitColor)
 
 	for !window.ShouldClose() {
 		// Need to reanable these things since Nuklear sets its own gl states when rendering.
@@ -200,6 +202,7 @@ func main() {
 
 						var newMaterial material
 						newMaterial.Init(&newShader)
+						activeMaterial = newMaterial
 						activeRenderer.setMaterial(newMaterial)
 					}
 					nk.NkLabel(ctxGUI, "-------------------------------------", nk.TextCentered)
@@ -218,10 +221,11 @@ func main() {
 				nk.NkLayoutRowDynamic(ctxGUI, 30, 2)
 				{
 					if nk.NkButtonLabel(ctxGUI, "Sphere") > 0 {
-						activeRenderer = &sphereRenderer
+						//activeRenderer = &sphereRenderer
+						activeRenderer.init(sphereVerts, activeMaterial)
 					}
 					if nk.NkButtonLabel(ctxGUI, "Box") > 0 {
-						activeRenderer = &boxRenderer
+						activeRenderer.init(boxVerts, activeMaterial)
 					}
 				}
 
