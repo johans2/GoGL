@@ -111,7 +111,7 @@ func main() {
 	projection := mgl32.Perspective(mgl32.DegToRad(45.0), float32(windowWidth)/windowHeight, 0.1, 10.0)
 
 	// Set up view matrix for shader
-	camera := mgl32.LookAtV(mgl32.Vec3{3, 3, 3}, mgl32.Vec3{0, 0, 0}, mgl32.Vec3{0, 1, 0})
+	view := mgl32.LookAtV(mgl32.Vec3{3, 3, 3}, mgl32.Vec3{0, 0, 0}, mgl32.Vec3{0, 1, 0})
 
 	// Set up model martix for shader
 	model := mgl32.Ident4()
@@ -159,8 +159,7 @@ func main() {
 		model = mgl32.HomogRotate3D(float32(angle), mgl32.Vec3{0, 1, 0})
 
 		// Render
-		MVP := projection.Mul4(camera.Mul4(model))
-		modelRenderer.issueDrawCall(MVP)
+		modelRenderer.issueDrawCall(model, view, projection)
 
 		// BEGIN GUI
 		// Layout GUI
