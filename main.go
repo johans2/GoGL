@@ -173,6 +173,7 @@ func main() {
 			{
 				nk.NkLayoutRowDynamic(ctxGUI, 30, 1)
 				{
+					nk.NkLabel(ctxGUI, "SHADER FILES", nk.TextCentered)
 					nk.NkLabel(ctxGUI, "Vertex program:", nk.TextLeft)
 					nk.NkEditStringZeroTerminated(ctxGUI, nk.EditField, bufferVertSource, 256, nk.NkFilterDefault)
 					nk.NkLabel(ctxGUI, "Fragment program:", nk.TextLeft)
@@ -215,7 +216,7 @@ func main() {
 						nk.NkLabel(ctxGUI, "-------------------------------------", nk.TextCentered)
 					}
 				}
-
+				nk.NkLabel(ctxGUI, "MODEL", nk.TextCentered)
 				nk.NkLayoutRowDynamic(ctxGUI, 60, 2)
 				{
 					if nk.NkButtonLabel(ctxGUI, "Sphere") > 0 {
