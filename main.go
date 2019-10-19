@@ -161,6 +161,7 @@ func main() {
 		model = mgl32.HomogRotate3D(float32(angle), mgl32.Vec3{0, 1, 0})
 
 		// Render
+
 		modelRenderer.issueDrawCall(model, view, projection)
 
 		// BEGIN GUI
@@ -219,9 +220,9 @@ func main() {
 					}
 				}
 				nk.NkLabel(ctxGUI, "MODEL", nk.TextCentered)
-				nk.NkLayoutRowDynamic(ctxGUI, 60, 2)
+				nk.NkLayoutRowDynamic(ctxGUI, 60, 3)
 				{
-					if nk.NkButtonLabel(ctxGUI, "Sphere") > 0 {
+					if nk.NkButtonLabel(ctxGUI, "LP Sphere") > 0 {
 						activeModel = sphereVerts
 						modelRenderer.setData(activeModel, activeMaterial)
 						modelRenderer.material.applyUniforms()
