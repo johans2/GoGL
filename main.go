@@ -121,6 +121,8 @@ func main() {
 	sphereVerts := sphereModel.ToArrayXYZUVN1N2N3()
 	boxModel, _ := readOBJ("Assets/box.obj")
 	boxVerts := boxModel.ToArrayXYZUVN1N2N3()
+	torusModel, _ := readOBJ("Assets/torus.obj")
+	torusVerts := torusModel.ToArrayXYZUVN1N2N3()
 
 	angle := 0.0
 	previousTime := glfw.GetTime()
@@ -131,7 +133,7 @@ func main() {
 	var bufferFragSource = make([]byte, 1024)
 
 	var activeMaterial material
-	activeMaterial.init(&shaderRed)
+	activeMaterial.init(&shaderGreen)
 
 	var activeModel = sphereVerts
 
@@ -228,6 +230,12 @@ func main() {
 						activeModel = boxVerts
 						modelRenderer.setData(activeModel, activeMaterial)
 						modelRenderer.material.applyUniforms()
+					}
+					if nk.NkButtonLabel(ctxGUI, "Torus") > 0 {
+						activeModel = torusVerts
+						modelRenderer.setData(activeModel, activeMaterial)
+						modelRenderer.material.applyUniforms()
+
 					}
 
 				}
