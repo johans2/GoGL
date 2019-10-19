@@ -208,21 +208,19 @@ func main() {
 							nk.NkLabelWrap(ctxGUI, "ERROR: "+shaderError.Error())
 						}
 					}
-
-					nk.NkLabel(ctxGUI, "-------------------------------------", nk.TextCentered)
 				}
-
-				modelRenderer.material.drawUI(ctxGUI)
 
 				if len(activeMaterial.fields) != 0 || len(activeMaterial.texBindings) != 0 {
 					nk.NkLayoutRowDynamic(ctxGUI, 30, 1)
 					{
+						nk.NkLabel(ctxGUI, "SHADER PROPERTIES", nk.TextCentered)
+						modelRenderer.material.drawUI(ctxGUI)
 						if nk.NkButtonLabel(ctxGUI, "Apply") > 0 {
 							modelRenderer.material.applyUniforms()
 						}
-						nk.NkLabel(ctxGUI, "-------------------------------------", nk.TextCentered)
 					}
 				}
+				nk.NkLabel(ctxGUI, "", nk.TextCentered)
 				nk.NkLabel(ctxGUI, "MODEL", nk.TextCentered)
 				nk.NkLayoutRowDynamic(ctxGUI, 60, 5)
 				{
