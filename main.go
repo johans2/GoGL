@@ -57,7 +57,7 @@ func main() {
 	defer glfw.Terminate()
 
 	glfw.WindowHint(glfw.Resizable, glfw.False)
-
+	glfw.WindowHint(glfw.Samples, 4)
 	glfw.WindowHint(glfw.ContextVersionMajor, 4)
 	glfw.WindowHint(glfw.ContextVersionMinor, 1)
 	glfw.WindowHint(glfw.OpenGLProfile, glfw.OpenGLCoreProfile)
@@ -117,12 +117,14 @@ func main() {
 	model := mgl32.Ident4()
 
 	// Load the model from the obj file
-	sphereModel, _ := readOBJ("Assets/lowPolySphere.obj")
+	sphereModel, _ := readOBJ("Assets/sphere.obj")
 	sphereVerts := sphereModel.ToArrayXYZUVN1N2N3()
 	boxModel, _ := readOBJ("Assets/box.obj")
 	boxVerts := boxModel.ToArrayXYZUVN1N2N3()
 	torusModel, _ := readOBJ("Assets/torus.obj")
 	torusVerts := torusModel.ToArrayXYZUVN1N2N3()
+	planeModel, _ := readOBJ("Assets/plane.obj")
+	planeVerts := planeModel.ToArrayXYZUVN1N2N3()
 
 	angle := 0.0
 	previousTime := glfw.GetTime()
@@ -220,7 +222,7 @@ func main() {
 					}
 				}
 				nk.NkLabel(ctxGUI, "MODEL", nk.TextCentered)
-				nk.NkLayoutRowDynamic(ctxGUI, 60, 3)
+				nk.NkLayoutRowDynamic(ctxGUI, 60, 4)
 				{
 					if nk.NkButtonLabel(ctxGUI, "LP Sphere") > 0 {
 						activeModel = sphereVerts
@@ -236,7 +238,11 @@ func main() {
 						activeModel = torusVerts
 						modelRenderer.setData(activeModel, activeMaterial)
 						modelRenderer.material.applyUniforms()
-
+					}
+					if nk.NkButtonLabel(ctxGUI, "Plane") > 0 {
+						activeModel = planeVerts
+						modelRenderer.setData(activeModel, activeMaterial)
+						modelRenderer.material.applyUniforms()
 					}
 
 				}
