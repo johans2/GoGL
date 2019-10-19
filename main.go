@@ -125,6 +125,8 @@ func main() {
 	torusVerts := torusModel.ToArrayXYZUVN1N2N3()
 	planeModel, _ := readOBJ("Assets/plane.obj")
 	planeVerts := planeModel.ToArrayXYZUVN1N2N3()
+	coneModel, _ := readOBJ("Assets/cone.obj")
+	coneVerts := coneModel.ToArrayXYZUVN1N2N3()
 
 	angle := 0.0
 	previousTime := glfw.GetTime()
@@ -222,9 +224,9 @@ func main() {
 					}
 				}
 				nk.NkLabel(ctxGUI, "MODEL", nk.TextCentered)
-				nk.NkLayoutRowDynamic(ctxGUI, 60, 4)
+				nk.NkLayoutRowDynamic(ctxGUI, 60, 5)
 				{
-					if nk.NkButtonLabel(ctxGUI, "LP Sphere") > 0 {
+					if nk.NkButtonLabel(ctxGUI, "Sphere") > 0 {
 						activeModel = sphereVerts
 						modelRenderer.setData(activeModel, activeMaterial)
 						modelRenderer.material.applyUniforms()
@@ -241,6 +243,11 @@ func main() {
 					}
 					if nk.NkButtonLabel(ctxGUI, "Plane") > 0 {
 						activeModel = planeVerts
+						modelRenderer.setData(activeModel, activeMaterial)
+						modelRenderer.material.applyUniforms()
+					}
+					if nk.NkButtonLabel(ctxGUI, "Cone") > 0 {
+						activeModel = coneVerts
 						modelRenderer.setData(activeModel, activeMaterial)
 						modelRenderer.material.applyUniforms()
 					}
