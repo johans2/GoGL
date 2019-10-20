@@ -148,6 +148,7 @@ func main() {
 	var shaderError error
 	clearColor := mgl32.Vec4{1.0, 1.0, 1.0, 1.0}
 	rotationSpeed := float32(0.5)
+	scale := float32(1.0)
 
 	for !window.ShouldClose() {
 		// Need to reanable these things since Nuklear sets its own gl states when rendering.
@@ -164,6 +165,7 @@ func main() {
 
 		angle += (elapsed * float64(rotationSpeed))
 		model = mgl32.HomogRotate3D(float32(angle), mgl32.Vec3{0, 1, 0})
+		model = model.Mul4(mgl32.Scale3D(scale, scale, scale))
 
 		// Render
 
@@ -253,6 +255,14 @@ func main() {
 
 				}
 
+				nk.NkLayoutRowDynamic(ctxGUI, 25, 1)
+				{
+					nk.NkPropertyFloat(ctxGUI, "Rotation Speed: ", 0, &rotationSpeed, 10, 0.1, 0.1)
+				}
+				nk.NkLayoutRowDynamic(ctxGUI, 25, 1)
+				{
+					nk.NkPropertyFloat(ctxGUI, "Scale: ", 0.1, &scale, 2, 0.1, 0.1)
+				}
 				nk.NkLayoutRowDynamic(ctxGUI, 25, 2)
 				{
 					nk.NkLabel(ctxGUI, "Clearcolor: ", nk.TextLeft)
@@ -270,10 +280,6 @@ func main() {
 						state.bgColor.SetRGBAi(r, g, b, a)
 						nk.NkComboEnd(ctxGUI)
 					}
-				}
-				nk.NkLayoutRowDynamic(ctxGUI, 25, 1)
-				{
-					nk.NkPropertyFloat(ctxGUI, "Rotation Speed: ", 0, &rotationSpeed, 10, 0.1, 0.1)
 				}
 
 			}
