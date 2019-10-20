@@ -10,10 +10,13 @@ void main() {
     mat3 normalMatrix = transpose(inverse(mat3(modelMatrix)));
     vec3 normal = normalize(normalMatrix * fragNormal);
 
+    vec4 color = vec4(0.2,0.9,0.2,1);
+    vec4 indirectDiffuse = vec4(0.65,0.65,0.65,1);
 
-    vec3 lightColor = vec3(1,1,1) * 0.4;
-    vec4 lightDir = vec4(1,0,0,1);
-    vec3 light = lightColor * dot(normal, normalize(lightDir.xyz));
+    vec3 lightColor = vec3(1,1,1) * 0.6;
+    vec4 lightDir = vec4(-0.5,0.1,-1,1);
+    vec3 directDiffuse = lightColor * dot(normal, normalize(lightDir.xyz));
+    vec4 diffuse = indirectDiffuse + vec4(directDiffuse,1);
 
-    outputColor = vec4(0.2,0.9,0.2,1) + vec4(light, 1);
+    outputColor = color * diffuse;
 }
