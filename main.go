@@ -93,7 +93,7 @@ func main() {
 	log.Println("Finished setting up Nk-GUI")
 
 	state := &State{
-		bgColor: nk.NkRgba(28, 48, 62, 255),
+		bgColor: nk.NkRgba(255, 255, 255, 255),
 	}
 
 	window.MakeContextCurrent()
@@ -146,6 +146,7 @@ func main() {
 	modelRenderer.setData(activeModel, activeMaterial)
 
 	var shaderError error
+	clearColor := mgl32.Vec4{1.0, 1.0, 1.0, 1.0}
 
 	for !window.ShouldClose() {
 		// Need to reanable these things since Nuklear sets its own gl states when rendering.
@@ -153,7 +154,7 @@ func main() {
 		gl.Enable(gl.DEPTH_TEST)
 		gl.Enable(gl.CULL_FACE)
 		gl.DepthFunc(gl.LESS)
-		gl.ClearColor(1.0, 1.0, 1.0, 1.0)
+		gl.ClearColor(clearColor.X(), clearColor.Y(), clearColor.Z(), clearColor.W())
 
 		// Update
 		rotSpeed := 0.5
@@ -250,6 +251,24 @@ func main() {
 						modelRenderer.material.applyUniforms()
 					}
 
+				}
+
+				nk.NkLayoutRowDynamic(ctxGUI, 25, 1)
+				{
+					size := nk.NkVec2(nk.NkWidgetWidth(ctxGUI), 400)
+					if nk.NkComboBeginColor(ctxGUI, state.bgColor, size) > 0 {
+						nk.NkLayoutRowDynamic(ctxGUI, 120, 1)
+						state.bgColor = nk.NkColorPicker(ctxGUI, state.bgColor, nk.ColorFormatRGBA)
+						nk.NkLayoutRowDynamic(ctxGUI, 25, 1)
+						r, g, b, a := state.bgColor.RGBAi()
+						r = nk.NkPropertyi(ctxGUI, "#R:", 0, r, 255, 1, 1)
+						g = nk.NkPropertyi(ctxGUI, "#G:", 0, g, 255, 1, 1)
+						b = nk.NkPropertyi(ctxGUI, "#B:", 0, b, 255, 1, 1)
+						a = nk.NkPropertyi(ctxGUI, "#A:", 0, a, 255, 1, 1)
+						clearColor = mgl32.Vec4{float32(r) / 255, float32(g) / 255, float32(b) / 255, float32(a) / 255}
+						state.bgColor.SetRGBAi(r, g, b, a)
+						nk.NkComboEnd(ctxGUI)
+					}
 				}
 
 			}
