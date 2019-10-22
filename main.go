@@ -33,6 +33,13 @@ const (
 	Hard Option = 1
 )
 
+type mouseState bool
+
+const (
+	press   mouseState = true
+	release mouseState = false
+)
+
 const (
 	maxVertexBuffer  = 512 * 1024
 	maxElementBuffer = 128 * 1024
@@ -48,6 +55,17 @@ type State struct {
 func init() {
 	// GLFW event handling must run on the main OS thread
 	runtime.LockOSThread()
+}
+
+func onMouseButton(w *glfw.Window, button glfw.MouseButton, action glfw.Action, mod glfw.ModifierKey) {
+	if button == glfw.MouseButton1 && action == glfw.Press {
+		log.Println("MB 1 Press!")
+	}
+
+	if button == glfw.MouseButton1 && action == glfw.Release {
+		log.Println("MB 1 Release!")
+	}
+
 }
 
 func main() {
@@ -68,6 +86,17 @@ func main() {
 	}
 
 	window.MakeContextCurrent()
+
+	currentMouseState := release
+	window.SetMouseButtonCallback(func(w *glfw.Window, button glfw.MouseButton, action glfw.Action, mod glfw.ModifierKey) {
+		if button == glfw.MouseButton1 && action == glfw.Press {
+			currentMouseState = press
+		}
+
+		if button == glfw.MouseButton1 && action == glfw.Release {
+			currentMouseState = release
+		}
+	})
 
 	// Initialize Glow
 	if err := gl.Init(); err != nil {
@@ -149,8 +178,13 @@ func main() {
 	clearColor := mgl32.Vec4{1.0, 1.0, 1.0, 1.0}
 	rotationSpeed := float32(0.5)
 	scale := float32(1.0)
+	var mouseXPrev float64
+	var mouseYPrev float64
+	var mouseY float64
+	var mouseX float64
 
 	for !window.ShouldClose() {
+
 		// Need to reanable these things since Nuklear sets its own gl states when rendering.
 		gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
 		gl.Enable(gl.DEPTH_TEST)
@@ -163,12 +197,23 @@ func main() {
 		elapsed := time - previousTime
 		previousTime = time
 
-		angle += (elapsed * float64(rotationSpeed))
+		if currentMouseState == press {
+			x, y := window.GetCursorPos()
+			mouseX = float64(x)
+			mouseY = y
+			deltaX := mouseX - mouseXPrev
+			deltaY := mouseY - mouseYPrev
+			angle += (deltaX/100 + deltaY/100)
+			mouseXPrev = mouseX
+			mouseYPrev = mouseY
+		} else {
+			angle += (elapsed * float64(rotationSpeed))
+		}
+
 		model = mgl32.HomogRotate3D(float32(angle), mgl32.Vec3{0, 1, 0})
 		model = model.Mul4(mgl32.Scale3D(scale, scale, scale))
 
 		// Render
-
 		modelRenderer.issueDrawCall(model, view, projection)
 
 		// BEGIN GUI
@@ -263,6 +308,7 @@ func main() {
 				{
 					nk.NkPropertyFloat(ctxGUI, "Scale: ", 0.1, &scale, 2, 0.1, 0.1)
 				}
+
 				nk.NkLayoutRowDynamic(ctxGUI, 25, 2)
 				{
 					nk.NkLabel(ctxGUI, "Clearcolor: ", nk.TextLeft)
