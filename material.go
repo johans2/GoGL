@@ -10,7 +10,7 @@ import (
 var texUnit int32
 
 type material struct {
-	shader      *shader
+	shader      shader
 	fields      []materialField
 	texBindings []textureBinding
 }
@@ -26,7 +26,7 @@ type materialField interface {
 }
 
 // Material functions
-func (m *material) init(shader *shader) {
+func (m *material) init(shader shader) {
 	m.shader = shader
 
 	for _, uniform := range shader.uniforms {
