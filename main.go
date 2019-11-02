@@ -73,22 +73,8 @@ func init() {
 }
 
 func main() {
-	if err := glfw.Init(); err != nil {
-		log.Fatalln("failed to initialize glfw:", err)
-	}
+	window := initGLFW()
 	defer glfw.Terminate()
-
-	glfw.WindowHint(glfw.Resizable, glfw.False)
-	glfw.WindowHint(glfw.Samples, 4)
-	glfw.WindowHint(glfw.ContextVersionMajor, 4)
-	glfw.WindowHint(glfw.ContextVersionMinor, 1)
-	glfw.WindowHint(glfw.OpenGLProfile, glfw.OpenGLCoreProfile)
-	glfw.WindowHint(glfw.OpenGLForwardCompatible, glfw.True)
-	window, err := glfw.CreateWindow(windowWidth, windowHeight, "Cube", nil, nil)
-	if err != nil {
-		panic(err)
-	}
-	window.MakeContextCurrent()
 
 	currentMouseState := release
 	window.SetMouseButtonCallback(func(w *glfw.Window, button glfw.MouseButton, action glfw.Action, mod glfw.ModifierKey) {
@@ -348,6 +334,26 @@ func drawGUI(state *state, data *data, window *glfw.Window) {
 	gl.Viewport(0, 0, int32(width), int32(height))
 	nk.NkPlatformRender(nk.AntiAliasingOn, maxVertexBuffer, maxElementBuffer)
 	// END GUI
+}
+
+func initGLFW() *glfw.Window {
+	if err := glfw.Init(); err != nil {
+		log.Fatalln("failed to initialize glfw:", err)
+	}
+
+	glfw.WindowHint(glfw.Resizable, glfw.False)
+	glfw.WindowHint(glfw.Samples, 4)
+	glfw.WindowHint(glfw.ContextVersionMajor, 4)
+	glfw.WindowHint(glfw.ContextVersionMinor, 1)
+	glfw.WindowHint(glfw.OpenGLProfile, glfw.OpenGLCoreProfile)
+	glfw.WindowHint(glfw.OpenGLForwardCompatible, glfw.True)
+	window, err := glfw.CreateWindow(windowWidth, windowHeight, "Cube", nil, nil)
+	if err != nil {
+		panic(err)
+	}
+	window.MakeContextCurrent()
+
+	return window
 }
 
 // importPathToDir resolves the absolute path from importPath.
