@@ -10,9 +10,11 @@ in vec3 normal;
 out vec2 fragTexCoord;
 out vec3 fragNormal;
 out vec3 fragVert;
+out vec3 fragWorldPos;
 void main() {
     fragTexCoord = vertTexCoord;
     fragNormal = normal;
     fragVert = vert;
+    fragWorldPos = (modelMatrix * vec4(vert,1)).xyz;
 	gl_Position = MVP * vec4(vert, 1);
 }

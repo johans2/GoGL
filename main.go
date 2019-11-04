@@ -106,14 +106,12 @@ func main() {
 	// Create font
 	atlas := nk.NewFontAtlas()
 	nk.NkFontStashBegin(&atlas)
-	//sansFont := nk.NkFontAtlasAddFromBytes(atlas, MustAsset("assets/FreeSans.ttf"), 16, nil)
 	sansFont := nk.NkFontAtlasAddDefault(atlas, 16, nil)
 	nk.NkFontStashEnd()
 	if sansFont != nil {
 		nk.NkStyleSetFont(state.glContext, sansFont.Handle())
 	}
 	log.Println("Finished setting up Nk-GUI")
-	window.MakeContextCurrent()
 
 	var shaderGreen shader
 	shaderGreen.loadFromFile("Assets/simpleGreen.vert", "Assets/simpleGreen.frag")
@@ -122,7 +120,8 @@ func main() {
 	projection := mgl32.Perspective(mgl32.DegToRad(45.0), float32(windowWidth)/windowHeight, 0.1, 10.0)
 
 	// Set up view matrix for shader
-	view := mgl32.LookAtV(mgl32.Vec3{3, 3, 3}, mgl32.Vec3{0, 0, 0}, mgl32.Vec3{0, 1, 0})
+	cameraPos := mgl32.Vec3{3, 3, 3}
+	view := mgl32.LookAtV(cameraPos, mgl32.Vec3{0, 0, 0}, mgl32.Vec3{0, 1, 0})
 
 	// Set up model martix for shader
 	model := mgl32.Ident4()
@@ -144,19 +143,16 @@ func main() {
 
 	log.Printf("Finished setup. Now rendering..")
 
+	// Setup initial state
 	state.activeMaterial.init(shaderGreen)
-
 	state.activeModel = data.sphereVerts
-
-	// Initialize the renderers
-	//var modelRenderer renderer
 	state.modelRenderer.setData(state.activeModel, state.activeMaterial)
-
 	state.bufferVertSource = make([]byte, 1024)
 	state.bufferFragSource = make([]byte, 1024)
 	state.clearColor = mgl32.Vec4{1.0, 1.0, 1.0, 1.0}
 	state.rotationSpeed = float32(0.5)
 	state.scale = float32(1.0)
+
 	var mouseXPrev float64
 	var mouseYPrev float64
 	var mouseY float64
@@ -174,11 +170,12 @@ func main() {
 			(*state).clearColor.Z(),
 			(*state).clearColor.W())
 
-		// Update
+		// Update time
 		time := glfw.GetTime()
 		elapsed := time - previousTime
 		previousTime = time
 
+		// Update mouse rotation
 		if currentMouseState == press {
 			x, y := window.GetCursorPos()
 			mouseX = float64(x)
@@ -196,20 +193,19 @@ func main() {
 		model = model.Mul4(mgl32.Scale3D(state.scale, state.scale, state.scale))
 
 		// Render
-		state.modelRenderer.issueDrawCall(model, view, projection)
+		state.modelRenderer.issueDrawCall(model, view, projection, cameraPos)
 		drawGUI(state, data, window)
+
 		// Maintenance
 		window.SwapBuffers()
 		glfw.PollEvents()
 	}
 
-	//nk.NkPlatformShutdown()
+	nk.NkPlatformShutdown()
 	glfw.Terminate()
 }
 
 func drawGUI(state *state, data *data, window *glfw.Window) {
-	// BEGIN GUI
-	// Layout GUI
 	nk.NkPlatformNewFrame()
 	bounds := nk.NkRect(20, 20, 400, 550)
 	update := nk.NkBegin(state.glContext, "Material inspector", bounds,
@@ -333,7 +329,6 @@ func drawGUI(state *state, data *data, window *glfw.Window) {
 	width, height := window.GetSize()
 	gl.Viewport(0, 0, int32(width), int32(height))
 	nk.NkPlatformRender(nk.AntiAliasingOn, maxVertexBuffer, maxElementBuffer)
-	// END GUI
 }
 
 func initGLFW() *glfw.Window {
