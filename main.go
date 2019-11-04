@@ -186,7 +186,7 @@ func main() {
 			mouseXPrev = mouseX
 			mouseYPrev = mouseY
 		} else {
-			angle += (elapsed * float64((*state).rotationSpeed))
+			angle += (elapsed * float64(state.rotationSpeed))
 		}
 
 		model = mgl32.HomogRotate3D(float32(angle), mgl32.Vec3{0, 1, 0})
@@ -207,21 +207,22 @@ func main() {
 
 func drawGUI(state *state, data *data, window *glfw.Window) {
 	nk.NkPlatformNewFrame()
-	bounds := nk.NkRect(20, 20, 400, 550)
+	bounds := nk.NkRect(20, 20, 400, 700)
 	update := nk.NkBegin(state.glContext, "Material inspector", bounds,
 		nk.WindowBorder|nk.WindowMovable|nk.WindowScalable|nk.WindowMinimizable|nk.WindowTitle)
 
 	if update > 0 {
 		nk.NkLayoutRowStatic(state.glContext, 10, 80, 1)
 		{
-			nk.NkLayoutRowDynamic((*state).glContext, 30, 1)
+			// Draw shader source and compilation GUI
+			nk.NkLayoutRowDynamic(state.glContext, 30, 1)
 			{
 				nk.NkLabel(state.glContext, "SHADER FILES", nk.TextCentered)
 				nk.NkLabel(state.glContext, "Vertex program:", nk.TextLeft)
 				nk.NkEditStringZeroTerminated(state.glContext, nk.EditField, state.bufferVertSource, 256, nk.NkFilterDefault)
 				nk.NkLabel(state.glContext, "Fragment program:", nk.TextLeft)
 				nk.NkEditStringZeroTerminated(state.glContext, nk.EditField, state.bufferFragSource, 256, nk.NkFilterDefault)
-				if nk.NkButtonLabel((*state).glContext, "Compile") > 0 {
+				if nk.NkButtonLabel(state.glContext, "Compile") > 0 {
 					var newShader shader
 					nVert := bytes.IndexByte(state.bufferVertSource, 0)
 					pathStringVert := string(state.bufferVertSource[:nVert])
@@ -246,17 +247,24 @@ func drawGUI(state *state, data *data, window *glfw.Window) {
 					}
 				}
 			}
-
+			// Draw the material GUI
 			if len(state.activeMaterial.fields) != 0 || len(state.activeMaterial.texBindings) != 0 {
 				nk.NkLayoutRowDynamic(state.glContext, 30, 1)
 				{
 					nk.NkLabel(state.glContext, "SHADER PROPERTIES", nk.TextCentered)
-					state.modelRenderer.material.drawUI(state.glContext)
+				}
+
+				state.modelRenderer.material.drawUI(state.glContext)
+
+				nk.NkLayoutRowDynamic(state.glContext, 30, 1)
+				{
 					if nk.NkButtonLabel(state.glContext, "Apply") > 0 {
 						state.modelRenderer.material.applyUniforms()
 					}
 				}
 			}
+
+			// Draw the model picker GUI
 			nk.NkLabel(state.glContext, "", nk.TextCentered)
 			nk.NkLabel(state.glContext, "MODEL", nk.TextCentered)
 			nk.NkLayoutRowDynamic(state.glContext, 60, 5)
@@ -289,6 +297,7 @@ func drawGUI(state *state, data *data, window *glfw.Window) {
 
 			}
 
+			// Draw utility values GUI
 			nk.NkLayoutRowDynamic(state.glContext, 25, 1)
 			{
 				nk.NkPropertyFloat(state.glContext, "Rotation Speed: ", 0, &state.rotationSpeed, 10, 0.1, 0.1)

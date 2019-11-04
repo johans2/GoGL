@@ -21,8 +21,6 @@ void main() {
     vec3 directDiffuse = lightColor * dot(normal, normalize(lightDir.xyz));
     vec4 diffuse = indirectDiffuse + vec4(directDiffuse,1);
 
-    //vec3 viewDir = target - initial, dvs vertPos - cameraPos i samma space (worldspace)
-    
     vec3 viewDir = normalize(fragWorldPos - cameraWorldPos);
     vec3 halfDir = normalize(lightDir.xyz + viewDir);
     float specAngle = max(dot(halfDir, normal), 0.0);
