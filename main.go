@@ -151,6 +151,7 @@ func main() {
 	state.modelRenderer.setData(state.activeModel, state.activeMaterial)
 	state.bufferVertSource = make([]byte, 1024)
 	state.bufferFragSource = make([]byte, 1024)
+	state.bgColor.SetRGBAi(255, 255, 255, 255)
 	state.clearColor = mgl32.Vec4{1.0, 1.0, 1.0, 1.0}
 	state.rotationSpeed = float32(0.5)
 	state.scale = float32(1.0)
@@ -209,7 +210,7 @@ func main() {
 
 func drawGUI(state *state, data *data, window *glfw.Window) {
 	nk.NkPlatformNewFrame()
-	bounds := nk.NkRect(20, 20, 400, 700)
+	bounds := nk.NkRect(20, 20, 400, 800)
 	update := nk.NkBegin(state.glContext, "Material inspector", bounds,
 		nk.WindowBorder|nk.WindowMovable|nk.WindowScalable|nk.WindowMinimizable|nk.WindowTitle)
 
