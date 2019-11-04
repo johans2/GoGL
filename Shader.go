@@ -21,7 +21,11 @@ const (
 )
 
 const (
-	camWorldPos string = "cameraWorldPos"
+	camWorldPosName string = "cameraWorldPos"
+	modelMatrixName string = "modelMatrix"
+	viewMatrixName  string = "viewMatrix"
+	projMatrixName  string = "projMatrix"
+	mvpMatrixName   string = "MVP"
 )
 
 type shader struct {
@@ -60,7 +64,12 @@ func getUniforms(source string) []uniform {
 }
 
 func isReservedUniformName(word string) bool {
-	isReserved := (word == camWorldPos)
+	isReserved := word == camWorldPosName ||
+		word == modelMatrixName ||
+		word == viewMatrixName ||
+		word == projMatrixName ||
+		word == mvpMatrixName
+
 	return isReserved
 }
 

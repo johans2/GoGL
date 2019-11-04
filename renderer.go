@@ -45,23 +45,23 @@ func (r *renderer) issueDrawCall(model mgl32.Mat4, view mgl32.Mat4, projection m
 	gl.UseProgram(r.material.shader.program)
 
 	// Set the modelUniform for the object
-	modelUniform := gl.GetUniformLocation(r.material.shader.program, gl.Str("modelMatrix\x00"))
+	modelUniform := gl.GetUniformLocation(r.material.shader.program, gl.Str(modelMatrixName+"\x00"))
 	gl.UniformMatrix4fv(modelUniform, 1, false, &model[0])
 
 	// Set the viewUniform for the object
-	viewUniform := gl.GetUniformLocation(r.material.shader.program, gl.Str("viewMatrix\x00"))
+	viewUniform := gl.GetUniformLocation(r.material.shader.program, gl.Str(viewMatrixName+"\x00"))
 	gl.UniformMatrix4fv(viewUniform, 1, false, &view[0])
 
 	// Set the projectionUniform for the object
-	projectionUniform := gl.GetUniformLocation(r.material.shader.program, gl.Str("projMatrix\x00"))
+	projectionUniform := gl.GetUniformLocation(r.material.shader.program, gl.Str(projMatrixName+"\x00"))
 	gl.UniformMatrix4fv(projectionUniform, 1, false, &projection[0])
 
 	// Also pass the combined MVP uniform for convenience
 	MVP := projection.Mul4(view.Mul4(model))
-	MVPUniform := gl.GetUniformLocation(r.material.shader.program, gl.Str("MVP\x00"))
+	MVPUniform := gl.GetUniformLocation(r.material.shader.program, gl.Str(mvpMatrixName+"\x00"))
 	gl.UniformMatrix4fv(MVPUniform, 1, false, &MVP[0])
 
-	camWorldPosUniform := gl.GetUniformLocation(r.material.shader.program, gl.Str("cameraWorldPos\x00"))
+	camWorldPosUniform := gl.GetUniformLocation(r.material.shader.program, gl.Str(camWorldPosName+"\x00"))
 	gl.Uniform3f(camWorldPosUniform, cameraWorldPos.X(), cameraWorldPos.Y(), cameraWorldPos.Z())
 
 	// Bind the vertex array object
