@@ -147,7 +147,7 @@ func main() {
 
 	// Setup initial state
 	state.activeMaterial.init(shaderGreen)
-	state.activeModel = data.sphereVerts
+	state.activeModel = data.boxVerts
 	state.modelRenderer.setData(state.activeModel, state.activeMaterial)
 	state.bufferVertSource = make([]byte, 1024)
 	state.bufferFragSource = make([]byte, 1024)
