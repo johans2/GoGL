@@ -20,6 +20,10 @@ const (
 	uniformMat4  uniformType = "mat4"
 )
 
+const (
+	camWorldPos string = "cameraWorldPos"
+)
+
 type shader struct {
 	program    uint32
 	vertSource string
@@ -42,12 +46,22 @@ func getUniforms(source string) []uniform {
 		if len(words) > 2 && words[0] == "uniform" {
 			uType, _ := getUniformTypeFromString(words[1])
 			name := strings.Trim(strings.Trim(words[2], "\r"), ";")
+
+			if isReservedUniformName(name) {
+				continue
+			}
+
 			u := uniform{uType, name}
 			uniforms = append(uniforms, u)
 		}
 	}
 
 	return uniforms
+}
+
+func isReservedUniformName(word string) bool {
+	isReserved := (word == camWorldPos)
+	return isReserved
 }
 
 // GetUniformTypeFromString Get the uniform type form a shader word
