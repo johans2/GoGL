@@ -100,8 +100,12 @@ type matFieldVec2 struct {
 }
 
 func (v2 *matFieldVec2) draw(glContext *nk.Context) {
-	nk.NkPropertyFloat(glContext, "x: ", -999, &v2.x, 999, 0.1, 0.01)
-	nk.NkPropertyFloat(glContext, "y: ", -999, &v2.y, 999, 0.1, 0.01)
+	nk.NkLayoutRowDynamic(glContext, 30, 3)
+	{
+		nk.NkLabel(glContext, v2.name, nk.TextLeft)
+		nk.NkPropertyFloat(glContext, "x: ", -999, &v2.x, 999, 0.1, 0.01)
+		nk.NkPropertyFloat(glContext, "y: ", -999, &v2.y, 999, 0.1, 0.01)
+	}
 }
 
 func (v2 *matFieldVec2) apply(mat *material) {

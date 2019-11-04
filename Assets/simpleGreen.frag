@@ -6,7 +6,6 @@ in vec3 fragWorldPos;
 
 uniform mat4 modelMatrix;
 uniform vec3 cameraWorldPos;
-uniform float specPower;
 out vec4 outputColor;
 void main() {
     //calculate normal in world coordinates
@@ -21,6 +20,7 @@ void main() {
     vec3 directDiffuse = lightColor * dot(normal, normalize(lightDir.xyz));
     vec4 diffuse = indirectDiffuse + vec4(directDiffuse,1);
 
+    float specPower = 50;
     vec3 viewDir = normalize(fragWorldPos - cameraWorldPos);
     vec3 halfDir = normalize(lightDir.xyz + viewDir);
     float specAngle = max(dot(halfDir, normal), 0.0);

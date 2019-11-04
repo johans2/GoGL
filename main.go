@@ -128,20 +128,22 @@ func main() {
 
 	// Load the model from the obj file
 	sphereModel, _ := readOBJ("Assets/sphere.obj")
-	data.sphereVerts = sphereModel.ToArrayXYZUVN1N2N3()
 	boxModel, _ := readOBJ("Assets/box.obj")
-	data.boxVerts = boxModel.ToArrayXYZUVN1N2N3()
 	torusModel, _ := readOBJ("Assets/torus.obj")
-	data.torusVerts = torusModel.ToArrayXYZUVN1N2N3()
 	planeModel, _ := readOBJ("Assets/plane.obj")
-	data.planeVerts = planeModel.ToArrayXYZUVN1N2N3()
 	coneModel, _ := readOBJ("Assets/cone.obj")
-	data.coneVerts = coneModel.ToArrayXYZUVN1N2N3()
 
 	angle := 0.0
 	previousTime := glfw.GetTime()
 
 	log.Printf("Finished setup. Now rendering..")
+
+	// Setup data struct
+	data.sphereVerts = sphereModel.ToArrayXYZUVN1N2N3()
+	data.boxVerts = boxModel.ToArrayXYZUVN1N2N3()
+	data.torusVerts = torusModel.ToArrayXYZUVN1N2N3()
+	data.planeVerts = planeModel.ToArrayXYZUVN1N2N3()
+	data.coneVerts = coneModel.ToArrayXYZUVN1N2N3()
 
 	// Setup initial state
 	state.activeMaterial.init(shaderGreen)
@@ -165,10 +167,10 @@ func main() {
 		gl.Enable(gl.DEPTH_TEST)
 		gl.Enable(gl.CULL_FACE)
 		gl.DepthFunc(gl.LESS)
-		gl.ClearColor((*state).clearColor.X(),
-			(*state).clearColor.Y(),
-			(*state).clearColor.Z(),
-			(*state).clearColor.W())
+		gl.ClearColor(state.clearColor.X(),
+			state.clearColor.Y(),
+			state.clearColor.Z(),
+			state.clearColor.W())
 
 		// Update time
 		time := glfw.GetTime()
@@ -239,11 +241,11 @@ func drawGUI(state *state, data *data, window *glfw.Window) {
 				}
 
 				if (*state).shaderError != nil {
-					nk.NkLayoutRowDynamic((*state).glContext, 60, 1)
+					nk.NkLayoutRowDynamic(state.glContext, 60, 1)
 					{
-						log.Printf("ERROR: " + ((*state).shaderError).Error())
+						log.Printf("ERROR: " + (state.shaderError).Error())
 
-						nk.NkLabelWrap((*state).glContext, "ERROR: "+(*state).shaderError.Error())
+						nk.NkLabelWrap(state.glContext, "ERROR: "+state.shaderError.Error())
 					}
 				}
 			}
