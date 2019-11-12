@@ -21,7 +21,7 @@ import (
 )
 
 const windowWidth = 1600
-const windowHeight = 1200
+const windowHeight = 900
 
 type mouseState bool
 
@@ -120,7 +120,7 @@ func main() {
 	projection := mgl32.Perspective(mgl32.DegToRad(45.0), float32(windowWidth)/windowHeight, 0.1, 10.0)
 
 	// Set up view matrix for shader
-	cameraPos := mgl32.Vec3{3, 3, 3}
+	cameraPos := mgl32.Vec3{0, 2, 3}
 	view := mgl32.LookAtV(cameraPos, mgl32.Vec3{0, 0, 0}, mgl32.Vec3{0, 1, 0})
 
 	// Set up model martix for shader
@@ -354,7 +354,7 @@ func initGLFW() *glfw.Window {
 	glfw.WindowHint(glfw.ContextVersionMinor, 1)
 	glfw.WindowHint(glfw.OpenGLProfile, glfw.OpenGLCoreProfile)
 	glfw.WindowHint(glfw.OpenGLForwardCompatible, glfw.True)
-	window, err := glfw.CreateWindow(windowWidth, windowHeight, "Cube", nil, nil)
+	window, err := glfw.CreateWindow(windowWidth, windowHeight, "GoGL", nil, nil)
 	if err != nil {
 		panic(err)
 	}
