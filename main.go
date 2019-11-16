@@ -238,14 +238,14 @@ func drawGUI(state *state, data *data, window *glfw.Window) {
 						newMaterial.init(newShader)
 						state.activeMaterial = newMaterial
 						state.modelRenderer.setData(state.activeModel, state.activeMaterial)
+					} else {
+						log.Printf("ERROR: " + (state.shaderError).Error())
 					}
 				}
 
 				if (*state).shaderError != nil {
 					nk.NkLayoutRowDynamic(state.glContext, 60, 1)
 					{
-						log.Printf("ERROR: " + (state.shaderError).Error())
-
 						nk.NkLabelWrap(state.glContext, "ERROR: "+state.shaderError.Error())
 					}
 				}
