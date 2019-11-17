@@ -125,9 +125,9 @@ func (v3 *matFieldVec3) draw(glContext *nk.Context) {
 	nk.NkLayoutRowDynamic(glContext, 30, 4)
 	{
 		nk.NkLabel(glContext, v3.name, nk.TextLeft)
-		nk.NkPropertyFloat(glContext, "x: ", -9999, &v3.x, 9999, 1, 1)
-		nk.NkPropertyFloat(glContext, "y: ", -9999, &v3.y, 9999, 1, 1)
-		nk.NkPropertyFloat(glContext, "z: ", -9999, &v3.z, 9999, 1, 1)
+		nk.NkPropertyFloat(glContext, "x: ", -999, &v3.x, 999, 0.1, 0.01)
+		nk.NkPropertyFloat(glContext, "y: ", -999, &v3.y, 999, 0.1, 0.01)
+		nk.NkPropertyFloat(glContext, "z: ", -999, &v3.z, 999, 0.1, 0.01)
 	}
 }
 
@@ -149,10 +149,10 @@ func (v4 *matFieldVec4) draw(glContext *nk.Context) {
 	nk.NkLayoutRowDynamic(glContext, 30, 5)
 	{
 		nk.NkLabel(glContext, v4.name, nk.TextLeft)
-		nk.NkPropertyFloat(glContext, "x: ", -9999, &v4.x, 9999, 1, 1)
-		nk.NkPropertyFloat(glContext, "y: ", -9999, &v4.y, 9999, 1, 1)
-		nk.NkPropertyFloat(glContext, "z: ", -9999, &v4.z, 9999, 1, 1)
-		nk.NkPropertyFloat(glContext, "w: ", -9999, &v4.w, 9999, 1, 1)
+		nk.NkPropertyFloat(glContext, "x: ", -999, &v4.x, 999, 0.1, 0.01)
+		nk.NkPropertyFloat(glContext, "y: ", -999, &v4.y, 999, 0.1, 0.01)
+		nk.NkPropertyFloat(glContext, "z: ", -999, &v4.z, 999, 0.1, 0.01)
+		nk.NkPropertyFloat(glContext, "w: ", -999, &v4.w, 999, 0.1, 0.01)
 	}
 }
 
