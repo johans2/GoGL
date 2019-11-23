@@ -88,7 +88,7 @@ func (f *matFieldFloat) draw(glContext *nk.Context) {
 }
 
 func (f *matFieldFloat) apply(mat *material) {
-	uniform := gl.GetUniformLocation(mat.shader.program, gl.Str(f.name+"\x00"))
+	uniform := gl.GetUniformLocation(mat.shader.program, gl.Str("material."+f.name+"\x00"))
 	gl.Uniform1f(uniform, f.value)
 }
 
@@ -109,7 +109,7 @@ func (v2 *matFieldVec2) draw(glContext *nk.Context) {
 }
 
 func (v2 *matFieldVec2) apply(mat *material) {
-	uniform := gl.GetUniformLocation(mat.shader.program, gl.Str(v2.name+"\x00"))
+	uniform := gl.GetUniformLocation(mat.shader.program, gl.Str("material."+v2.name+"\x00"))
 	gl.Uniform2f(uniform, v2.x, v2.y)
 }
 
@@ -132,7 +132,7 @@ func (v3 *matFieldVec3) draw(glContext *nk.Context) {
 }
 
 func (v3 *matFieldVec3) apply(mat *material) {
-	uniform := gl.GetUniformLocation(mat.shader.program, gl.Str(v3.name+"\x00"))
+	uniform := gl.GetUniformLocation(mat.shader.program, gl.Str("material."+v3.name+"\x00"))
 	gl.Uniform3f(uniform, v3.x, v3.y, v3.z)
 }
 
@@ -157,7 +157,7 @@ func (v4 *matFieldVec4) draw(glContext *nk.Context) {
 }
 
 func (v4 *matFieldVec4) apply(mat *material) {
-	uniform := gl.GetUniformLocation(mat.shader.program, gl.Str(v4.name+"\x00"))
+	uniform := gl.GetUniformLocation(mat.shader.program, gl.Str("material."+v4.name+"\x00"))
 	gl.Uniform4f(uniform, v4.x, v4.y, v4.z, v4.w)
 }
 
@@ -183,7 +183,7 @@ func (t *matFieldTexture) apply(mat *material) {
 	t.tex.loadFromFile(pathString)
 
 	// Get the uniform location
-	uniform := gl.GetUniformLocation(mat.shader.program, gl.Str(t.name+"\x00"))
+	uniform := gl.GetUniformLocation(mat.shader.program, gl.Str("material."+t.name+"\x00"))
 
 	// Create and add a new texture binding struct
 	var texBind textureBinding

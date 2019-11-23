@@ -44,22 +44,29 @@ func getUniforms(source string) []uniform {
 	uniforms := make([]uniform, 0)
 
 	lines := strings.Split(source, "\n")
-
+	startMaterialStruct := false
 	for _, line := range lines {
-		words := strings.Split(strings.Trim(line, " "), " ")
-		if len(words) > 2 && words[0] == "uniform" {
-			uType, _ := getUniformTypeFromString(words[1])
-			name := strings.Trim(strings.Trim(words[2], "\r"), ";")
+		if !startMaterialStruct && (strings.Contains(line, "struct Material") || strings.Contains(line, "struct material")) {
+			startMaterialStruct = true
+			continue
+		}
 
-			if isReservedUniformName(name) {
-				continue
+		if startMaterialStruct {
+			words := strings.Split(strings.Trim(line, " "), " ")
+			if strings.Contains(line, "};") {
+				break
 			}
 
+			uType, error := getUniformTypeFromString(strings.TrimSpace(words[0]))
+			if error != nil {
+				fmt.Println(error.Error())
+			}
+
+			name := strings.TrimSpace(strings.Replace(words[1], ";", "", -1))
 			u := uniform{uType, name}
 			uniforms = append(uniforms, u)
 		}
 	}
-
 	return uniforms
 }
 

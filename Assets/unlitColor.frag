@@ -1,6 +1,11 @@
 #version 330
+struct Material {
+    vec3 RGB;
+};
+uniform Material material;
+
+
 out vec4 outputColor;
-uniform vec3 RGB;
 void main() {
-    outputColor = vec4(RGB.r,RGB.g,RGB.b,1);
+    outputColor = vec4(material.RGB,1);
 }

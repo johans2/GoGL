@@ -1,11 +1,15 @@
 #version 330
+struct Material {
+    float specPower;
+    sampler2D tex;
+}; 
+  
+uniform Material material;
+
 in vec2 fragTexCoord;
 in vec3 fragNormal;
 in vec3 fragVert;
 in vec3 fragWorldPos;
-
-uniform float specPower;
-uniform sampler2D tex;
 
 uniform mat4 modelMatrix;
 uniform vec3 cameraWorldPos;
@@ -17,7 +21,7 @@ void main() {
     vec3 normal = normalize(worldMatrix * fragNormal);
 
     // Sample texture for color
-    vec4 color = texture(tex, fragTexCoord);
+    vec4 color = texture(material.tex, fragTexCoord);
 
     // Calculate diffuse light
     vec4 indirectDiffuse = vec4(0.2,0.2,0.2,1);
@@ -31,7 +35,7 @@ void main() {
     vec3 viewDir = normalize(fragWorldPos - cameraWorldPos);
     vec3 halfDir = normalize(lightDir.xyz + viewDir);
     float specAngle = max(dot(halfDir, normal), 0.0);
-    float specular = pow(specAngle,specPower);
+    float specular = pow(specAngle,material.specPower);
 
     outputColor = color * diffuse + vec4(lightColor,1) * specular;
 }
