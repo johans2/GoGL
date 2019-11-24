@@ -196,7 +196,7 @@ func main() {
 		model = model.Mul4(mgl32.Scale3D(state.scale, state.scale, state.scale))
 
 		// Render
-		state.modelRenderer.issueDrawCall(model, view, projection, cameraPos)
+		state.modelRenderer.issueDrawCall(model, view, projection, cameraPos, float32(time))
 		drawGUI(state, data, window)
 
 		// Maintenance

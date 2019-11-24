@@ -40,7 +40,7 @@ func (r *renderer) setData(verts []float32, material material) {
 	gl.BindFragDataLocation(r.material.shader.program, 0, gl.Str("outputColor\x00"))
 }
 
-func (r *renderer) issueDrawCall(model mgl32.Mat4, view mgl32.Mat4, projection mgl32.Mat4, cameraWorldPos mgl32.Vec3) {
+func (r *renderer) issueDrawCall(model mgl32.Mat4, view mgl32.Mat4, projection mgl32.Mat4, cameraWorldPos mgl32.Vec3, time float32) {
 	// Select the shader to use
 	gl.UseProgram(r.material.shader.program)
 
@@ -63,6 +63,9 @@ func (r *renderer) issueDrawCall(model mgl32.Mat4, view mgl32.Mat4, projection m
 
 	camWorldPosUniform := gl.GetUniformLocation(r.material.shader.program, gl.Str(camWorldPosName+"\x00"))
 	gl.Uniform3f(camWorldPosUniform, cameraWorldPos.X(), cameraWorldPos.Y(), cameraWorldPos.Z())
+
+	timeUniform := gl.GetUniformLocation(r.material.shader.program, gl.Str(timeName+"\x00"))
+	gl.Uniform1f(timeUniform, time)
 
 	// Bind the vertex array object
 	gl.BindVertexArray(r.vao)

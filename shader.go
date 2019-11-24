@@ -26,6 +26,7 @@ const (
 	viewMatrixName  string = "viewMatrix"
 	projMatrixName  string = "projMatrix"
 	mvpMatrixName   string = "MVP"
+	timeName        string = "time"
 )
 
 type shader struct {
