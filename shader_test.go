@@ -43,7 +43,7 @@ func TestGetShaderUniforms(t *testing.T) {
 	shaderUniforms := getUniforms(testShader)
 	assert.Equal(t, len(shaderUniforms), len(expectedUniforms), "Invalid number of shader material fields parsed.")
 
-	for i, _ := range shaderUniforms {
+	for i := range shaderUniforms {
 		expeced := expectedUniforms[i]
 		actual := shaderUniforms[i]
 		assert.Equal(t, expeced.name, actual.name, "Invalid name on shader material field")
