@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"fmt"
 
 	"github.com/go-gl/gl/v3.2-core/gl"
 	"github.com/golang-ui/nuklear/nk"
@@ -180,7 +181,11 @@ func (t *matFieldTexture) apply(mat *material) {
 	// Load it from file
 	n := bytes.IndexByte(t.filePath, 0)
 	pathString := string(t.filePath[:n])
-	t.tex.loadFromFile(pathString)
+	texError := t.tex.loadFromFile(pathString)
+
+	if texError != nil {
+		fmt.Println("Bad texture" + texError.Error())
+	}
 
 	// Get the uniform location
 	uniform := gl.GetUniformLocation(mat.shader.program, gl.Str("material."+t.name+"\x00"))

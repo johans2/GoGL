@@ -6,6 +6,7 @@ struct Material {
     vec2 dir2;
     float steepness1;
     float steepness2;
+    sampler2D tex;
 };
 
 uniform Material material;

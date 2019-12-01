@@ -57,6 +57,8 @@ type data struct {
 	coneVerts   []float32
 }
 
+var reApplyUniformsa = false
+
 func init() {
 	// GLFW event handling must run on the main OS thread
 	runtime.LockOSThread()
@@ -192,6 +194,10 @@ func main() {
 			angle += (elapsed * float64(state.rotationSpeed))
 		}
 
+		if reApplyUniformsa {
+			state.modelRenderer.material.applyUniforms()
+		}
+
 		model = mgl32.HomogRotate3D(float32(angle), mgl32.Vec3{0, 1, 0})
 		model = model.Mul4(mgl32.Scale3D(state.scale, state.scale, state.scale))
 
@@ -262,7 +268,7 @@ func drawGUI(state *state, data *data, window *glfw.Window) {
 				nk.NkLayoutRowDynamic(state.glContext, 30, 1)
 				{
 					if nk.NkButtonLabel(state.glContext, "Apply") > 0 {
-						state.modelRenderer.material.applyUniforms()
+						reApplyUniformsa = true
 					}
 				}
 			}
