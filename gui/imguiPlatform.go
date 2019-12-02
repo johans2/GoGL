@@ -1,5 +1,3 @@
-// +build glfw
-
 package gui
 
 import (

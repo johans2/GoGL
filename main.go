@@ -13,6 +13,7 @@ import (
 	"github.com/go-gl/gl/v3.2-core/gl"
 	"github.com/go-gl/glfw/v3.2/glfw"
 	"github.com/go-gl/mathgl/mgl32"
+	"github.com/inkyblackness/imgui-go"
 )
 
 const windowWidth = 1600
@@ -72,19 +73,39 @@ func init() {
 }
 
 func main() {
-	window := initGLFW()
-	defer glfw.Terminate()
+	/*
+		window := initGLFW()
+		defer glfw.Terminate()
+	*/
+	context := imgui.CreateContext(nil)
+	defer context.Destroy()
+	io := imgui.CurrentIO()
+
+	platform, err := gui.NewGLFW(io, gui.GLFWClientAPIOpenGL3)
+	if err != nil {
+		_, _ = fmt.Fprintf(os.Stderr, "%v\n", err)
+		os.Exit(-1)
+	}
+	defer platform.Dispose()
+
+	imguiRenderer, err := gui.NewOpenGL3(io)
+	if err != nil {
+		_, _ = fmt.Fprintf(os.Stderr, "%v\n", err)
+		os.Exit(-1)
+	}
+	defer imguiRenderer.Dispose()
 
 	currentMouseState := release
-	window.SetMouseButtonCallback(func(w *glfw.Window, button glfw.MouseButton, action glfw.Action, mod glfw.ModifierKey) {
-		if button == glfw.MouseButton1 && action == glfw.Press {
-			currentMouseState = press
-		}
+	/*
+		window.SetMouseButtonCallback(func(w *glfw.Window, button glfw.MouseButton, action glfw.Action, mod glfw.ModifierKey) {
+			if button == glfw.MouseButton1 && action == glfw.Press {
+				currentMouseState = press
+			}
 
-		if button == glfw.MouseButton1 && action == glfw.Release {
-			currentMouseState = release
-		}
-	})
+			if button == glfw.MouseButton1 && action == glfw.Release {
+				currentMouseState = release
+			}
+		})*/
 
 	// Initialize Glow
 	if err := gl.Init(); err != nil {
@@ -146,7 +167,32 @@ func main() {
 	var mouseY float64
 	var mouseX float64
 
-	for !window.ShouldClose() {
+	for !platform.ShouldStop() {
+		platform.ProcessEvents()
+
+		// Signal start of a new frame
+		platform.NewFrame()
+		imgui.NewFrame()
+
+		// 2. Show a simple window that we create ourselves. We use a Begin/End pair to created a named window.
+		{
+			imgui.Begin("Hello, world!") // Create a window called "Hello, world!" and append into it.
+
+			imgui.Text("This is some useful text.") // Display some text
+
+			if imgui.Button("Button") { // Buttons return true when clicked (most widgets return true when edited/activated)
+				fmt.Println("Button clicked!")
+			}
+			imgui.SameLine()
+			imgui.Text(fmt.Sprintf("counter = %d", 1))
+
+			imgui.End()
+		}
+
+		// Rendering
+		imgui.Render() // This call only creates the draw data list. Actual rendering to framebuffer is done below.
+		clearColor := [4]float32{0.0, 0.0, 0.0, 1.0}
+		imguiRenderer.PreRender(clearColor)
 
 		// Need to reanable these things since Nuklear sets its own gl states when rendering.
 		gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
@@ -165,7 +211,7 @@ func main() {
 
 		// Update mouse rotation
 		if currentMouseState == press {
-			x, y := window.GetCursorPos()
+			x, y := 0.0, 0.0 //window.GetCursorPos()
 			mouseX = float64(x)
 			mouseY = y
 			deltaX := mouseX - mouseXPrev
@@ -188,11 +234,14 @@ func main() {
 		state.modelRenderer.issueDrawCall(model, view, projection, cameraPos, float32(time))
 
 		// Maintenance
-		window.SwapBuffers()
-		glfw.PollEvents()
+		imguiRenderer.Render(platform.DisplaySize(), platform.FramebufferSize(), imgui.RenderedDrawData())
+		platform.PostRender()
+		//platform.PostRender() //window.SwapBuffers()
+		//platform.ProcessEvents()
+		//glfw.PollEvents()
 	}
 
-	glfw.Terminate()
+	//glfw.Terminate()
 }
 
 func initGLFW() *glfw.Window {
