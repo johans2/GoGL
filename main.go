@@ -6,7 +6,6 @@
 package main
 
 import (
-	"bytes"
 	"fmt"
 	"go/build"
 	_ "image/png"
@@ -17,7 +16,6 @@ import (
 	"github.com/go-gl/gl/v3.2-core/gl"
 	"github.com/go-gl/glfw/v3.2/glfw"
 	"github.com/go-gl/mathgl/mgl32"
-	"github.com/golang-ui/nuklear/nk"
 )
 
 const windowWidth = 1600
@@ -36,8 +34,8 @@ const (
 )
 
 type state struct {
-	glContext        *nk.Context
-	bgColor          nk.Color
+	//glContext        *nk.Context
+	//bgColor          nk.Color
 	rotationSpeed    float32
 	scale            float32
 	clearColor       mgl32.Vec4
@@ -101,20 +99,21 @@ func main() {
 	state := new(state)
 	data := new(data)
 
-	// Init nuklear gui
-	log.Printf("NkPlatformInit")
-	state.glContext = nk.NkPlatformInit(window, nk.PlatformInstallCallbacks)
+	/*
+		// Init nuklear gui
+		log.Printf("NkPlatformInit")
+		state.glContext = nk.NkPlatformInit(window, nk.PlatformInstallCallbacks)
 
-	// Create font
-	atlas := nk.NewFontAtlas()
-	nk.NkFontStashBegin(&atlas)
-	sansFont := nk.NkFontAtlasAddDefault(atlas, 16, nil)
-	nk.NkFontStashEnd()
-	if sansFont != nil {
-		nk.NkStyleSetFont(state.glContext, sansFont.Handle())
-	}
-	log.Println("Finished setting up Nk-GUI")
-
+		// Create font
+		atlas := nk.NewFontAtlas()
+		nk.NkFontStashBegin(&atlas)
+		sansFont := nk.NkFontAtlasAddDefault(atlas, 16, nil)
+		nk.NkFontStashEnd()
+		if sansFont != nil {
+			nk.NkStyleSetFont(state.glContext, sansFont.Handle())
+		}
+		log.Println("Finished setting up Nk-GUI")
+	*/
 	var shaderGreen shader
 	shaderGreen.loadFromFile("Assets/simpleGreen.vert", "Assets/simpleGreen.frag")
 
@@ -153,7 +152,7 @@ func main() {
 	state.modelRenderer.setData(state.activeModel, state.activeMaterial)
 	state.bufferVertSource = make([]byte, 1024)
 	state.bufferFragSource = make([]byte, 1024)
-	state.bgColor.SetRGBAi(255, 255, 255, 255)
+	//state.bgColor.SetRGBAi(255, 255, 255, 255)
 	state.clearColor = mgl32.Vec4{1.0, 1.0, 1.0, 1.0}
 	state.rotationSpeed = float32(0.5)
 	state.scale = float32(1.0)
@@ -203,17 +202,18 @@ func main() {
 
 		// Render
 		state.modelRenderer.issueDrawCall(model, view, projection, cameraPos, float32(time))
-		drawGUI(state, data, window)
+		//drawGUI(state, data, window)
 
 		// Maintenance
 		window.SwapBuffers()
 		glfw.PollEvents()
 	}
 
-	nk.NkPlatformShutdown()
+	//nk.NkPlatformShutdown()
 	glfw.Terminate()
 }
 
+/*
 func drawGUI(state *state, data *data, window *glfw.Window) {
 	nk.NkPlatformNewFrame()
 	bounds := nk.NkRect(20, 20, 400, 800)
@@ -348,7 +348,7 @@ func drawGUI(state *state, data *data, window *glfw.Window) {
 	gl.Viewport(0, 0, int32(width), int32(height))
 	nk.NkPlatformRender(nk.AntiAliasingOn, maxVertexBuffer, maxElementBuffer)
 }
-
+*/
 func initGLFW() *glfw.Window {
 	if err := glfw.Init(); err != nil {
 		log.Fatalln("failed to initialize glfw:", err)
