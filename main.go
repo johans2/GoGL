@@ -149,6 +149,9 @@ func main() {
 	var mouseY float64
 	var mouseX float64
 
+	var testText string
+	var testText2 string
+
 	for !platform.ShouldStop() {
 		platform.ProcessEvents()
 
@@ -161,6 +164,9 @@ func main() {
 			imgui.Begin("Hello, world!") // Create a window called "Hello, world!" and append into it.
 
 			imgui.Text("This is some useful text.") // Display some text
+
+			imgui.InputText("Input text 1", &testText)
+			imgui.InputText("Input text 2", &testText2)
 
 			if imgui.Button("Button") { // Buttons return true when clicked (most widgets return true when edited/activated)
 				fmt.Println("Button clicked!")
