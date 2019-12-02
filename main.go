@@ -1,8 +1,3 @@
-// Copyright 2014 The go-gl Authors. All rights reserved.
-// Use of this source code is governed by a BSD-style
-// license that can be found in the LICENSE file.
-
-// Renders a textured spinning cube using GLFW 3 and OpenGL 4.1 core forward-compatible profile.
 package main
 
 import (
@@ -12,6 +7,8 @@ import (
 	"log"
 	"os"
 	"runtime"
+
+	"GoGL/gui"
 
 	"github.com/go-gl/gl/v3.2-core/gl"
 	"github.com/go-gl/glfw/v3.2/glfw"
@@ -61,6 +58,8 @@ func init() {
 	// GLFW event handling must run on the main OS thread
 	runtime.LockOSThread()
 
+	fmt.Println(gui.TestString)
+
 	// Set the working directory to the root of Go package, so that its assets can be accessed.
 	dir, err := importPathToDir("GoGL")
 	if err != nil {
@@ -99,21 +98,6 @@ func main() {
 	state := new(state)
 	data := new(data)
 
-	/*
-		// Init nuklear gui
-		log.Printf("NkPlatformInit")
-		state.glContext = nk.NkPlatformInit(window, nk.PlatformInstallCallbacks)
-
-		// Create font
-		atlas := nk.NewFontAtlas()
-		nk.NkFontStashBegin(&atlas)
-		sansFont := nk.NkFontAtlasAddDefault(atlas, 16, nil)
-		nk.NkFontStashEnd()
-		if sansFont != nil {
-			nk.NkStyleSetFont(state.glContext, sansFont.Handle())
-		}
-		log.Println("Finished setting up Nk-GUI")
-	*/
 	var shaderGreen shader
 	shaderGreen.loadFromFile("Assets/simpleGreen.vert", "Assets/simpleGreen.frag")
 
@@ -202,153 +186,15 @@ func main() {
 
 		// Render
 		state.modelRenderer.issueDrawCall(model, view, projection, cameraPos, float32(time))
-		//drawGUI(state, data, window)
 
 		// Maintenance
 		window.SwapBuffers()
 		glfw.PollEvents()
 	}
 
-	//nk.NkPlatformShutdown()
 	glfw.Terminate()
 }
 
-/*
-func drawGUI(state *state, data *data, window *glfw.Window) {
-	nk.NkPlatformNewFrame()
-	bounds := nk.NkRect(20, 20, 400, 800)
-	update := nk.NkBegin(state.glContext, "Material inspector", bounds,
-		nk.WindowBorder|nk.WindowMovable|nk.WindowScalable|nk.WindowMinimizable|nk.WindowTitle)
-
-	if update > 0 {
-		nk.NkLayoutRowStatic(state.glContext, 10, 80, 1)
-		{
-			// Draw shader source and compilation GUI
-			nk.NkLayoutRowDynamic(state.glContext, 30, 1)
-			{
-				nk.NkLabel(state.glContext, "SHADER FILES", nk.TextCentered)
-				nk.NkLabel(state.glContext, "Vertex program:", nk.TextLeft)
-				nk.NkEditStringZeroTerminated(state.glContext, nk.EditField, state.bufferVertSource, 256, nk.NkFilterDefault)
-				nk.NkLabel(state.glContext, "Fragment program:", nk.TextLeft)
-				nk.NkEditStringZeroTerminated(state.glContext, nk.EditField, state.bufferFragSource, 256, nk.NkFilterDefault)
-				if nk.NkButtonLabel(state.glContext, "Compile") > 0 {
-					var newShader shader
-					nVert := bytes.IndexByte(state.bufferVertSource, 0)
-					pathStringVert := string(state.bufferVertSource[:nVert])
-					nFrag := bytes.IndexByte(state.bufferFragSource, 0)
-					pathStringFrag := string(state.bufferFragSource[:nFrag])
-
-					state.shaderError = newShader.loadFromFile(pathStringVert, pathStringFrag)
-					if state.shaderError == nil {
-						var newMaterial material
-						newMaterial.init(newShader)
-						state.activeMaterial = newMaterial
-						state.modelRenderer.setData(state.activeModel, state.activeMaterial)
-					} else {
-						log.Printf("ERROR: " + (state.shaderError).Error())
-					}
-				}
-
-				if (*state).shaderError != nil {
-					nk.NkLayoutRowDynamic(state.glContext, 60, 1)
-					{
-						nk.NkLabelWrap(state.glContext, "ERROR: "+state.shaderError.Error())
-					}
-				}
-			}
-			// Draw the material GUI
-			if len(state.activeMaterial.fields) != 0 || len(state.activeMaterial.texBindings) != 0 {
-				nk.NkLayoutRowDynamic(state.glContext, 30, 1)
-				{
-					nk.NkLabel(state.glContext, "SHADER PROPERTIES", nk.TextCentered)
-				}
-
-				state.modelRenderer.material.drawUI(state.glContext)
-
-				nk.NkLayoutRowDynamic(state.glContext, 30, 1)
-				{
-					if nk.NkButtonLabel(state.glContext, "Apply") > 0 {
-						reApplyUniformsa = true
-					}
-				}
-			}
-
-			// Draw the model picker GUI
-			nk.NkLabel(state.glContext, "", nk.TextCentered)
-			nk.NkLabel(state.glContext, "MODEL", nk.TextCentered)
-			nk.NkLayoutRowDynamic(state.glContext, 60, 5)
-			{
-				if nk.NkButtonLabel(state.glContext, "Sphere") > 0 {
-					state.activeModel = data.sphereVerts
-					state.modelRenderer.setData(state.activeModel, state.activeMaterial)
-					state.modelRenderer.material.applyUniforms()
-				}
-				if nk.NkButtonLabel(state.glContext, "Box") > 0 {
-					state.activeModel = data.boxVerts
-					state.modelRenderer.setData(state.activeModel, state.activeMaterial)
-					state.modelRenderer.material.applyUniforms()
-				}
-				if nk.NkButtonLabel(state.glContext, "Torus") > 0 {
-					state.activeModel = data.torusVerts
-					state.modelRenderer.setData(state.activeModel, state.activeMaterial)
-					state.modelRenderer.material.applyUniforms()
-				}
-				if nk.NkButtonLabel(state.glContext, "Plane") > 0 {
-					state.activeModel = data.planeVerts
-					state.modelRenderer.setData(state.activeModel, state.activeMaterial)
-					state.modelRenderer.material.applyUniforms()
-				}
-				if nk.NkButtonLabel(state.glContext, "Cone") > 0 {
-					state.activeModel = data.coneVerts
-					state.modelRenderer.setData(state.activeModel, state.activeMaterial)
-					state.modelRenderer.material.applyUniforms()
-				}
-
-			}
-
-			// Draw utility values GUI
-			nk.NkLayoutRowDynamic(state.glContext, 25, 1)
-			{
-				nk.NkPropertyFloat(state.glContext, "Rotation Speed: ", 0, &state.rotationSpeed, 10, 0.1, 0.1)
-			}
-			nk.NkLayoutRowDynamic(state.glContext, 25, 1)
-			{
-				nk.NkPropertyFloat(state.glContext, "Scale: ", 0.1, &state.scale, 2, 0.1, 0.1)
-			}
-
-			nk.NkLayoutRowDynamic(state.glContext, 25, 2)
-			{
-				nk.NkLabel(state.glContext, "Clearcolor: ", nk.TextLeft)
-				size := nk.NkVec2(nk.NkWidgetWidth(state.glContext), 400)
-				if nk.NkComboBeginColor(state.glContext, state.bgColor, size) > 0 {
-					nk.NkLayoutRowDynamic(state.glContext, 120, 1)
-					state.bgColor = nk.NkColorPicker(state.glContext, state.bgColor, nk.ColorFormatRGBA)
-					nk.NkLayoutRowDynamic(state.glContext, 25, 1)
-					r, g, b, a := state.bgColor.RGBAi()
-					r = nk.NkPropertyi(state.glContext, "#R:", 0, r, 255, 1, 1)
-					g = nk.NkPropertyi(state.glContext, "#G:", 0, g, 255, 1, 1)
-					b = nk.NkPropertyi(state.glContext, "#B:", 0, b, 255, 1, 1)
-					a = nk.NkPropertyi(state.glContext, "#A:", 0, a, 255, 1, 1)
-					state.clearColor = mgl32.Vec4{float32(r) / 255, float32(g) / 255, float32(b) / 255, float32(a) / 255}
-					state.bgColor.SetRGBAi(r, g, b, a)
-					nk.NkComboEnd(state.glContext)
-				}
-
-			}
-
-		}
-
-	}
-	nk.NkEnd(state.glContext)
-
-	// Render GUI
-	bg := make([]float32, 4)
-	nk.NkColorFv(bg, state.bgColor)
-	width, height := window.GetSize()
-	gl.Viewport(0, 0, int32(width), int32(height))
-	nk.NkPlatformRender(nk.AntiAliasingOn, maxVertexBuffer, maxElementBuffer)
-}
-*/
 func initGLFW() *glfw.Window {
 	if err := glfw.Init(); err != nil {
 		log.Fatalln("failed to initialize glfw:", err)
