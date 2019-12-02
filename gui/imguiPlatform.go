@@ -51,7 +51,7 @@ func NewGLFW(io imgui.IO, clientAPI GLFWClientAPI) (*GLFW, error) {
 		return nil, fmt.Errorf("unsupported ClientAPI: <%s>", clientAPI)
 	}
 
-	window, err := glfw.CreateWindow(1280, 720, "ImGui-Go GLFW+"+string(clientAPI)+" example", nil, nil)
+	window, err := glfw.CreateWindow(1280, 720, "GoGL", nil, nil)
 	if err != nil {
 		glfw.Terminate()
 		return nil, fmt.Errorf("failed to create window: %v", err)
@@ -155,6 +155,7 @@ func (platform *GLFW) setKeyMapping() {
 	platform.imguiIO.KeyMap(imgui.KeyZ, int(glfw.KeyZ))
 }
 
+// This should install callbaks from the input package
 func (platform *GLFW) installCallbacks() {
 	platform.window.SetMouseButtonCallback(platform.mouseButtonChange)
 	platform.window.SetScrollCallback(platform.mouseScrollChange)

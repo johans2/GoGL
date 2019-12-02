@@ -59,8 +59,6 @@ func init() {
 	// GLFW event handling must run on the main OS thread
 	runtime.LockOSThread()
 
-	fmt.Println(gui.TestString)
-
 	// Set the working directory to the root of Go package, so that its assets can be accessed.
 	dir, err := importPathToDir("GoGL")
 	if err != nil {
@@ -73,10 +71,6 @@ func init() {
 }
 
 func main() {
-	/*
-		window := initGLFW()
-		defer glfw.Terminate()
-	*/
 	context := imgui.CreateContext(nil)
 	defer context.Destroy()
 	io := imgui.CurrentIO()
@@ -96,17 +90,6 @@ func main() {
 	defer imguiRenderer.Dispose()
 
 	currentMouseState := release
-	/*
-		window.SetMouseButtonCallback(func(w *glfw.Window, button glfw.MouseButton, action glfw.Action, mod glfw.ModifierKey) {
-			if button == glfw.MouseButton1 && action == glfw.Press {
-				currentMouseState = press
-			}
-
-			if button == glfw.MouseButton1 && action == glfw.Release {
-				currentMouseState = release
-			}
-		})*/
-
 	// Initialize Glow
 	if err := gl.Init(); err != nil {
 		panic(err)
@@ -157,7 +140,6 @@ func main() {
 	state.modelRenderer.setData(state.activeModel, state.activeMaterial)
 	state.bufferVertSource = make([]byte, 1024)
 	state.bufferFragSource = make([]byte, 1024)
-	//state.bgColor.SetRGBAi(255, 255, 255, 255)
 	state.clearColor = mgl32.Vec4{1.0, 1.0, 1.0, 1.0}
 	state.rotationSpeed = float32(0.5)
 	state.scale = float32(1.0)
@@ -236,32 +218,7 @@ func main() {
 		// Maintenance
 		imguiRenderer.Render(platform.DisplaySize(), platform.FramebufferSize(), imgui.RenderedDrawData())
 		platform.PostRender()
-		//platform.PostRender() //window.SwapBuffers()
-		//platform.ProcessEvents()
-		//glfw.PollEvents()
 	}
-
-	//glfw.Terminate()
-}
-
-func initGLFW() *glfw.Window {
-	if err := glfw.Init(); err != nil {
-		log.Fatalln("failed to initialize glfw:", err)
-	}
-
-	glfw.WindowHint(glfw.Resizable, glfw.False)
-	glfw.WindowHint(glfw.Samples, 4)
-	glfw.WindowHint(glfw.ContextVersionMajor, 4)
-	glfw.WindowHint(glfw.ContextVersionMinor, 1)
-	glfw.WindowHint(glfw.OpenGLProfile, glfw.OpenGLCoreProfile)
-	glfw.WindowHint(glfw.OpenGLForwardCompatible, glfw.True)
-	window, err := glfw.CreateWindow(windowWidth, windowHeight, "GoGL", nil, nil)
-	if err != nil {
-		panic(err)
-	}
-	window.MakeContextCurrent()
-
-	return window
 }
 
 // importPathToDir resolves the absolute path from importPath.
