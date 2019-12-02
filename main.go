@@ -82,7 +82,7 @@ func main() {
 	}
 	defer platform.Dispose()
 
-	imguiRenderer, err := gui.NewOpenGL3(io)
+	imguiRenderer, err := gui.NewOpenGL3()
 	if err != nil {
 		_, _ = fmt.Fprintf(os.Stderr, "%v\n", err)
 		os.Exit(-1)
@@ -179,8 +179,8 @@ func main() {
 
 		// Rendering
 		imgui.Render() // This call only creates the draw data list. Actual rendering to framebuffer is done below.
-		clearColor := [4]float32{0.0, 0.0, 0.0, 1.0}
-		imguiRenderer.PreRender(clearColor)
+		//clearColor := [4]float32{0.0, 0.0, 0.0, 1.0}
+		//imguiRenderer.PreRender(clearColor)
 
 		// Need to reanable these things since Nuklear sets its own gl states when rendering.
 		gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)

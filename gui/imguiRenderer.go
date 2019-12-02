@@ -12,8 +12,6 @@ var TestString string = "Hello there!"
 
 // OpenGL3 implements a renderer based on github.com/go-gl/gl (v3.2-core).
 type OpenGL3 struct {
-	imguiIO imgui.IO
-
 	glslVersion            string
 	fontTexture            uint32
 	shaderHandle           uint32
@@ -30,14 +28,13 @@ type OpenGL3 struct {
 
 // NewOpenGL3 attempts to initialize a renderer.
 // An OpenGL context has to be established before calling this function.
-func NewOpenGL3(io imgui.IO) (*OpenGL3, error) {
+func NewOpenGL3() (*OpenGL3, error) {
 	err := gl.Init()
 	if err != nil {
 		return nil, fmt.Errorf("failed to initialize OpenGL: %v", err)
 	}
 
 	renderer := &OpenGL3{
-		imguiIO:     io,
 		glslVersion: "#version 150",
 	}
 	renderer.createDeviceObjects()
