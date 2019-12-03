@@ -32,17 +32,15 @@ const (
 )
 
 type state struct {
-	//glContext        *nk.Context
-	//bgColor          nk.Color
-	rotationSpeed    float32
-	scale            float32
-	clearColor       mgl32.Vec4
-	bufferVertSource []byte
-	bufferFragSource []byte
-	activeMaterial   material
-	activeModel      []float32
-	modelRenderer    renderer
-	shaderError      error
+	rotationSpeed  float32
+	scale          float32
+	clearColor     mgl32.Vec4
+	vertSource     string
+	fragSource     string
+	activeMaterial material
+	activeModel    []float32
+	modelRenderer  renderer
+	shaderError    error
 }
 
 type data struct {
@@ -138,8 +136,8 @@ func main() {
 	state.activeMaterial.init(shaderGreen)
 	state.activeModel = data.boxVerts
 	state.modelRenderer.setData(state.activeModel, state.activeMaterial)
-	state.bufferVertSource = make([]byte, 1024)
-	state.bufferFragSource = make([]byte, 1024)
+	state.vertSource = ""
+	state.fragSource = ""
 	state.clearColor = mgl32.Vec4{1.0, 1.0, 1.0, 1.0}
 	state.rotationSpeed = float32(0.5)
 	state.scale = float32(1.0)
@@ -148,9 +146,6 @@ func main() {
 	var mouseYPrev float64
 	var mouseY float64
 	var mouseX float64
-
-	var testText string
-	var testText2 string
 
 	for !platform.ShouldStop() {
 		platform.ProcessEvents()
@@ -161,17 +156,36 @@ func main() {
 
 		// 2. Show a simple window that we create ourselves. We use a Begin/End pair to created a named window.
 		{
-			imgui.Begin("Hello, world!") // Create a window called "Hello, world!" and append into it.
+			imgui.Begin("Material viewer")
 
-			imgui.Text("This is some useful text.") // Display some text
+			imgui.Text("Shader programs")
+			imgui.InputText("vert source", &state.vertSource)
+			imgui.InputText("frag source", &state.fragSource)
 
-			imgui.InputText("Input text 1", &testText)
-			imgui.InputText("Input text 2", &testText2)
-
-			if imgui.Button("Button") { // Buttons return true when clicked (most widgets return true when edited/activated)
-				fmt.Println("Button clicked!")
+			if imgui.Button("Sphere") {
+				state.activeModel = data.sphereVerts
+				state.modelRenderer.setData(state.activeModel, state.activeMaterial)
+				state.modelRenderer.material.applyUniforms()
 			}
 			imgui.SameLine()
+			if imgui.Button("Box") {
+				state.activeModel = data.boxVerts
+				state.modelRenderer.setData(state.activeModel, state.activeMaterial)
+				state.modelRenderer.material.applyUniforms()
+			}
+			imgui.SameLine()
+			if imgui.Button("Torus") {
+				state.activeModel = data.torusVerts
+				state.modelRenderer.setData(state.activeModel, state.activeMaterial)
+				state.modelRenderer.material.applyUniforms()
+			}
+			imgui.SameLine()
+			if imgui.Button("Plane") {
+				state.activeModel = data.planeVerts
+				state.modelRenderer.setData(state.activeModel, state.activeMaterial)
+				state.modelRenderer.material.applyUniforms()
+			}
+
 			imgui.Text(fmt.Sprintf("counter = %d", 1))
 
 			imgui.End()
