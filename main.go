@@ -162,39 +162,35 @@ func main() {
 			imgui.InputText("vert source", &state.vertSource)
 			imgui.InputText("frag source", &state.fragSource)
 
-			if imgui.Button("Sphere") {
-				state.activeModel = data.sphereVerts
-				state.modelRenderer.setData(state.activeModel, state.activeMaterial)
-				state.modelRenderer.material.applyUniforms()
-			}
-			imgui.SameLine()
-			if imgui.Button("Box") {
-				state.activeModel = data.boxVerts
-				state.modelRenderer.setData(state.activeModel, state.activeMaterial)
-				state.modelRenderer.material.applyUniforms()
-			}
-			imgui.SameLine()
-			if imgui.Button("Torus") {
-				state.activeModel = data.torusVerts
-				state.modelRenderer.setData(state.activeModel, state.activeMaterial)
-				state.modelRenderer.material.applyUniforms()
-			}
-			imgui.SameLine()
-			if imgui.Button("Plane") {
-				state.activeModel = data.planeVerts
-				state.modelRenderer.setData(state.activeModel, state.activeMaterial)
-				state.modelRenderer.material.applyUniforms()
+			if imgui.Button("Compile") {
+				var newShader shader
+				state.shaderError = newShader.loadFromFile(state.vertSource, state.fragSource)
+				if state.shaderError == nil {
+					var newMaterial material
+					newMaterial.init(newShader)
+					state.activeMaterial = newMaterial
+					state.modelRenderer.setData(state.activeModel, state.activeMaterial)
+				} else {
+					log.Printf("ERROR: " + (state.shaderError).Error())
+				}
 			}
 
-			imgui.Text(fmt.Sprintf("counter = %d", 1))
+			// Draw the material GUI
+			if len(state.activeMaterial.fields) != 0 || len(state.activeMaterial.texBindings) != 0 {
 
+				state.modelRenderer.material.drawUI()
+
+				if imgui.Button("Apply") {
+					state.modelRenderer.material.applyUniforms()
+				}
+			}
+
+			drawModelGUI(state, data)
 			imgui.End()
 		}
 
 		// Rendering
 		imgui.Render() // This call only creates the draw data list. Actual rendering to framebuffer is done below.
-		//clearColor := [4]float32{0.0, 0.0, 0.0, 1.0}
-		//imguiRenderer.PreRender(clearColor)
 
 		// Need to reanable these things since Nuklear sets its own gl states when rendering.
 		gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
@@ -225,10 +221,6 @@ func main() {
 			angle += (elapsed * float64(state.rotationSpeed))
 		}
 
-		if reApplyUniformsa {
-			state.modelRenderer.material.applyUniforms()
-		}
-
 		model = mgl32.HomogRotate3D(float32(angle), mgl32.Vec3{0, 1, 0})
 		model = model.Mul4(mgl32.Scale3D(state.scale, state.scale, state.scale))
 
@@ -239,6 +231,34 @@ func main() {
 		imguiRenderer.Render(platform.DisplaySize(), platform.FramebufferSize(), imgui.RenderedDrawData())
 		platform.PostRender()
 	}
+}
+
+func drawModelGUI(state *state, data *data) {
+
+	if imgui.Button("Sphere") {
+		state.activeModel = data.sphereVerts
+		state.modelRenderer.setData(state.activeModel, state.activeMaterial)
+		state.modelRenderer.material.applyUniforms()
+	}
+	imgui.SameLine()
+	if imgui.Button("Box") {
+		state.activeModel = data.boxVerts
+		state.modelRenderer.setData(state.activeModel, state.activeMaterial)
+		state.modelRenderer.material.applyUniforms()
+	}
+	imgui.SameLine()
+	if imgui.Button("Torus") {
+		state.activeModel = data.torusVerts
+		state.modelRenderer.setData(state.activeModel, state.activeMaterial)
+		state.modelRenderer.material.applyUniforms()
+	}
+	imgui.SameLine()
+	if imgui.Button("Plane") {
+		state.activeModel = data.planeVerts
+		state.modelRenderer.setData(state.activeModel, state.activeMaterial)
+		state.modelRenderer.material.applyUniforms()
+	}
+
 }
 
 // importPathToDir resolves the absolute path from importPath.

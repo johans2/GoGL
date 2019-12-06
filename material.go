@@ -1,11 +1,10 @@
 package main
 
 import (
-	"bytes"
 	"fmt"
 
 	"github.com/go-gl/gl/v3.2-core/gl"
-	"github.com/golang-ui/nuklear/nk"
+	"github.com/inkyblackness/imgui-go"
 )
 
 var texUnit int32
@@ -22,7 +21,7 @@ type textureBinding struct {
 }
 
 type materialField interface {
-	draw(glContext *nk.Context)
+	draw()
 	apply(mat *material)
 }
 
@@ -40,15 +39,15 @@ func (m *material) init(shader shader) {
 			m.fields = append(m.fields, &matFieldVec3{uniform.name, 1, 0, 0})
 		case uniformTex2D:
 			tex := texture{}
-			m.fields = append(m.fields, &matFieldTexture{uniform.name, tex, make([]byte, 1024)})
+			m.fields = append(m.fields, &matFieldTexture{uniform.name, tex, ""})
 		}
 
 	}
 }
 
-func (m *material) drawUI(glContext *nk.Context) {
+func (m *material) drawUI() {
 	for _, field := range m.fields {
-		field.draw(glContext)
+		field.draw()
 	}
 }
 
@@ -80,12 +79,11 @@ type matFieldFloat struct {
 	value float32
 }
 
-func (f *matFieldFloat) draw(glContext *nk.Context) {
-	nk.NkLayoutRowDynamic(glContext, 30, 2)
-	{
-		nk.NkLabel(glContext, f.name, nk.TextLeft)
-		nk.NkPropertyFloat(glContext, "value: ", -999, &f.value, 999, 0.01, 0.1)
-	}
+func (f *matFieldFloat) draw() {
+	imgui.Text(f.name)
+
+	//imgui.SliderFloat(f.name, &f.value, -9999, 9999)
+	//imgui.
 }
 
 func (f *matFieldFloat) apply(mat *material) {
@@ -100,13 +98,12 @@ type matFieldVec2 struct {
 	y    float32
 }
 
-func (v2 *matFieldVec2) draw(glContext *nk.Context) {
-	nk.NkLayoutRowDynamic(glContext, 30, 3)
-	{
-		nk.NkLabel(glContext, v2.name, nk.TextLeft)
-		nk.NkPropertyFloat(glContext, "x: ", -999, &v2.x, 999, 0.01, 0.1)
-		nk.NkPropertyFloat(glContext, "y: ", -999, &v2.y, 999, 0.01, 0.1)
-	}
+func (v2 *matFieldVec2) draw() {
+	imgui.Text(v2.name)
+	imgui.SameLine()
+	imgui.DragFloat("x", &v2.x)
+	imgui.SameLine()
+	imgui.DragFloat("y", &v2.y)
 }
 
 func (v2 *matFieldVec2) apply(mat *material) {
@@ -122,14 +119,14 @@ type matFieldVec3 struct {
 	z    float32
 }
 
-func (v3 *matFieldVec3) draw(glContext *nk.Context) {
-	nk.NkLayoutRowDynamic(glContext, 30, 4)
-	{
-		nk.NkLabel(glContext, v3.name, nk.TextLeft)
-		nk.NkPropertyFloat(glContext, "x: ", -999, &v3.x, 999, 0.01, 0.1)
-		nk.NkPropertyFloat(glContext, "y: ", -999, &v3.y, 999, 0.01, 0.1)
-		nk.NkPropertyFloat(glContext, "z: ", -999, &v3.z, 999, 0.01, 0.1)
-	}
+func (v3 *matFieldVec3) draw() {
+	imgui.Text(v3.name)
+	imgui.SameLine()
+	imgui.SliderFloat("x", &v3.x, -9999, 9999) //("x", &v3.x)
+	imgui.SameLine()
+	imgui.DragFloat("y", &v3.y)
+	imgui.SameLine()
+	imgui.DragFloat("z", &v3.z)
 }
 
 func (v3 *matFieldVec3) apply(mat *material) {
@@ -146,15 +143,16 @@ type matFieldVec4 struct {
 	w    float32
 }
 
-func (v4 *matFieldVec4) draw(glContext *nk.Context) {
-	nk.NkLayoutRowDynamic(glContext, 30, 5)
-	{
-		nk.NkLabel(glContext, v4.name, nk.TextLeft)
-		nk.NkPropertyFloat(glContext, "x: ", -999, &v4.x, 999, 0.01, 0.1)
-		nk.NkPropertyFloat(glContext, "y: ", -999, &v4.y, 999, 0.01, 0.1)
-		nk.NkPropertyFloat(glContext, "z: ", -999, &v4.z, 999, 0.01, 0.1)
-		nk.NkPropertyFloat(glContext, "w: ", -999, &v4.w, 999, 0.01, 0.1)
-	}
+func (v4 *matFieldVec4) draw() {
+	imgui.Text(v4.name)
+	imgui.SameLine()
+	imgui.DragFloat("x", &v4.x)
+	imgui.SameLine()
+	imgui.DragFloat("y", &v4.y)
+	imgui.SameLine()
+	imgui.DragFloat("z", &v4.z)
+	imgui.SameLine()
+	imgui.DragFloat("w", &v4.w)
 }
 
 func (v4 *matFieldVec4) apply(mat *material) {
@@ -166,22 +164,17 @@ func (v4 *matFieldVec4) apply(mat *material) {
 type matFieldTexture struct {
 	name     string
 	tex      texture
-	filePath []byte
+	filePath string
 }
 
-func (t *matFieldTexture) draw(glContext *nk.Context) {
-	nk.NkLayoutRowDynamic(glContext, 30, 1)
-	{
-		nk.NkLabel(glContext, t.name+": ", nk.TextLeft)
-		nk.NkEditStringZeroTerminated(glContext, nk.EditField, t.filePath, 1024, nk.NkFilterDefault)
-	}
+func (t *matFieldTexture) draw() {
+	imgui.Text(t.name)
+	imgui.SameLine()
+	imgui.InputText("", &t.filePath)
 }
 
 func (t *matFieldTexture) apply(mat *material) {
-	// Load it from file
-	n := bytes.IndexByte(t.filePath, 0)
-	pathString := string(t.filePath[:n])
-	texError := t.tex.loadFromFile(pathString)
+	texError := t.tex.loadFromFile(t.filePath)
 
 	if texError != nil {
 		fmt.Println("Bad texture" + texError.Error())
