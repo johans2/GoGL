@@ -98,11 +98,13 @@ type matFieldVec2 struct {
 }
 
 func (v2 *matFieldVec2) draw() {
+	imgui.Columns(3, "")
 	imgui.Text(v2.name)
-	imgui.SameLine()
+	imgui.NextColumn()
 	imgui.DragFloat("x", &v2.x)
-	imgui.SameLine()
+	imgui.NextColumn()
 	imgui.DragFloat("y", &v2.y)
+	imgui.Columns(1, "")
 }
 
 func (v2 *matFieldVec2) apply(mat *material) {
@@ -119,13 +121,15 @@ type matFieldVec3 struct {
 }
 
 func (v3 *matFieldVec3) draw() {
+	imgui.Columns(4, "")
 	imgui.Text(v3.name)
-	imgui.SameLine()
+	imgui.NextColumn()
 	imgui.DragFloat("x", &v3.x)
-	imgui.SameLine()
+	imgui.NextColumn()
 	imgui.DragFloat("y", &v3.y)
-	imgui.SameLine()
+	imgui.NextColumn()
 	imgui.DragFloat("z", &v3.z)
+	imgui.Columns(1, "")
 }
 
 func (v3 *matFieldVec3) apply(mat *material) {
@@ -143,15 +147,17 @@ type matFieldVec4 struct {
 }
 
 func (v4 *matFieldVec4) draw() {
+	imgui.Columns(5, "")
 	imgui.Text(v4.name)
-	imgui.SameLine()
+	imgui.NextColumn()
 	imgui.DragFloat("x", &v4.x)
-	imgui.SameLine()
+	imgui.NextColumn()
 	imgui.DragFloat("y", &v4.y)
-	imgui.SameLine()
+	imgui.NextColumn()
 	imgui.DragFloat("z", &v4.z)
-	imgui.SameLine()
+	imgui.NextColumn()
 	imgui.DragFloat("w", &v4.w)
+	imgui.Columns(1, "")
 }
 
 func (v4 *matFieldVec4) apply(mat *material) {
