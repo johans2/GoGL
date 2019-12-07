@@ -81,9 +81,8 @@ type matFieldFloat struct {
 
 func (f *matFieldFloat) draw() {
 	imgui.Text(f.name)
-
-	//imgui.SliderFloat(f.name, &f.value, -9999, 9999)
-	//imgui.
+	imgui.SameLine()
+	imgui.DragFloat(f.name, &f.value)
 }
 
 func (f *matFieldFloat) apply(mat *material) {
@@ -122,7 +121,7 @@ type matFieldVec3 struct {
 func (v3 *matFieldVec3) draw() {
 	imgui.Text(v3.name)
 	imgui.SameLine()
-	imgui.SliderFloat("x", &v3.x, -9999, 9999) //("x", &v3.x)
+	imgui.DragFloat("x", &v3.x)
 	imgui.SameLine()
 	imgui.DragFloat("y", &v3.y)
 	imgui.SameLine()
