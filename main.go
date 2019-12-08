@@ -158,14 +158,6 @@ func main() {
 		{
 			imgui.Begin("Material viewer")
 
-			imgui.Columns(3, "1")
-			imgui.Text("Col1")
-			imgui.NextColumn()
-			imgui.Text("Col2")
-			imgui.NextColumn()
-			imgui.Text("Col3")
-			imgui.Columns(1, "")
-
 			imgui.Text("Shader programs")
 			imgui.InputText("vert source", &state.vertSource)
 			imgui.InputText("frag source", &state.fragSource)

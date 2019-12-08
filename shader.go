@@ -41,6 +41,44 @@ type uniform struct {
 	name  string
 }
 
+func appendUniforms(uniforms []uniform, source string) {
+
+	lines := strings.Split(source, "\n")
+	startMaterialStruct := false
+	for _, line := range lines {
+		if !startMaterialStruct && (strings.Contains(line, "struct Material") || strings.Contains(line, "struct material")) {
+			startMaterialStruct = true
+			continue
+		}
+
+		if startMaterialStruct {
+			words := strings.Split(strings.Trim(line, " "), " ")
+			if strings.Contains(line, "};") {
+				break
+			}
+
+			uType, error := getUniformTypeFromString(strings.TrimSpace(words[0]))
+			if error != nil {
+				fmt.Println(error.Error())
+			}
+
+			name := strings.TrimSpace(strings.Replace(words[1], ";", "", -1))
+			u := uniform{uType, name}
+
+			alreadyAdded := false
+			for _, uniform := range uniforms {
+				if uniform.name == name {
+					alreadyAdded = true
+				}
+			}
+
+			if !alreadyAdded {
+				uniforms = append(uniforms, u)
+			}
+		}
+	}
+}
+
 func getUniforms(source string) []uniform {
 	uniforms := make([]uniform, 0)
 
@@ -65,20 +103,20 @@ func getUniforms(source string) []uniform {
 
 			name := strings.TrimSpace(strings.Replace(words[1], ";", "", -1))
 			u := uniform{uType, name}
-			uniforms = append(uniforms, u)
+
+			alreadyAdded := false
+			for _, uniform := range uniforms {
+				if uniform.name == name {
+					alreadyAdded = true
+				}
+			}
+
+			if !alreadyAdded {
+				uniforms = append(uniforms, u)
+			}
 		}
 	}
 	return uniforms
-}
-
-func isReservedUniformName(word string) bool {
-	isReserved := word == camWorldPosName ||
-		word == modelMatrixName ||
-		word == viewMatrixName ||
-		word == projMatrixName ||
-		word == mvpMatrixName
-
-	return isReserved
 }
 
 // GetUniformTypeFromString Get the uniform type form a shader word
@@ -127,8 +165,27 @@ func (s *shader) loadFromFile(vertSource string, fragSource string) error {
 		return compileErr
 	}
 
-	s.uniforms = append(s.uniforms, getUniforms(s.vertSource)...)
-	s.uniforms = append(s.uniforms, getUniforms(s.fragSource)...)
+	//appendUniforms(s.uniforms, s.vertSource)
+	//appendUniforms(s.uniforms, s.fragSource)
+	vertUniforms := getUniforms(s.vertSource)
+	fragUniforms := getUniforms(s.fragSource)
+
+	for _, vertUniform := range vertUniforms {
+		s.uniforms = append(s.uniforms, vertUniform)
+	}
+
+	for _, fragUniform := range fragUniforms {
+		alreadyAdded := false
+		for _, uniform := range s.uniforms {
+			if uniform.name == fragUniform.name {
+				alreadyAdded = true
+			}
+		}
+		if !alreadyAdded {
+			s.uniforms = append(s.uniforms, fragUniform)
+		}
+	}
+
 	return nil
 }
 

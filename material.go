@@ -37,6 +37,8 @@ func (m *material) init(shader shader) {
 			m.fields = append(m.fields, &matFieldVec2{uniform.name, 0, 0})
 		case uniformVec3:
 			m.fields = append(m.fields, &matFieldVec3{uniform.name, 1, 0, 0})
+		case uniformVec4:
+			m.fields = append(m.fields, &matFieldVec4{uniform.name, 1, 0, 0, 0})
 		case uniformTex2D:
 			tex := texture{}
 			m.fields = append(m.fields, &matFieldTexture{uniform.name, tex, ""})
@@ -101,9 +103,9 @@ func (v2 *matFieldVec2) draw() {
 	imgui.Columns(3, "")
 	imgui.Text(v2.name)
 	imgui.NextColumn()
-	imgui.DragFloat("x", &v2.x)
+	imgui.DragFloat("x##"+v2.name, &v2.x)
 	imgui.NextColumn()
-	imgui.DragFloat("y", &v2.y)
+	imgui.DragFloat("y##"+v2.name, &v2.y)
 	imgui.Columns(1, "")
 }
 
@@ -121,14 +123,14 @@ type matFieldVec3 struct {
 }
 
 func (v3 *matFieldVec3) draw() {
-	imgui.Columns(4, "")
+	imgui.Columns(4, v3.name)
 	imgui.Text(v3.name)
 	imgui.NextColumn()
-	imgui.DragFloat("x", &v3.x)
+	imgui.DragFloat("x##"+v3.name, &v3.x)
 	imgui.NextColumn()
-	imgui.DragFloat("y", &v3.y)
+	imgui.DragFloat("y##"+v3.name, &v3.y)
 	imgui.NextColumn()
-	imgui.DragFloat("z", &v3.z)
+	imgui.DragFloat("z##"+v3.name, &v3.z)
 	imgui.Columns(1, "")
 }
 
@@ -147,16 +149,16 @@ type matFieldVec4 struct {
 }
 
 func (v4 *matFieldVec4) draw() {
-	imgui.Columns(5, "")
+	imgui.Columns(5, v4.name)
 	imgui.Text(v4.name)
 	imgui.NextColumn()
-	imgui.DragFloat("x", &v4.x)
+	imgui.DragFloat("x##"+v4.name, &v4.x)
 	imgui.NextColumn()
-	imgui.DragFloat("y", &v4.y)
+	imgui.DragFloat("y##"+v4.name, &v4.y)
 	imgui.NextColumn()
-	imgui.DragFloat("z", &v4.z)
+	imgui.DragFloat("z##"+v4.name, &v4.z)
 	imgui.NextColumn()
-	imgui.DragFloat("w", &v4.w)
+	imgui.DragFloat("w##"+v4.name, &v4.w)
 	imgui.Columns(1, "")
 }
 
