@@ -9,6 +9,7 @@ import (
 	"runtime"
 
 	"GoGL/gui"
+	"GoGL/platform"
 
 	"github.com/go-gl/gl/v3.2-core/gl"
 	"github.com/go-gl/glfw/v3.2/glfw"
@@ -69,17 +70,18 @@ func init() {
 }
 
 func main() {
-	context := imgui.CreateContext(nil)
+	context, imguiInput := gui.NewImgui()
 	defer context.Destroy()
-	io := imgui.CurrentIO()
 
-	platform, err := gui.NewGLFW(io, gui.GLFWClientAPIOpenGL3)
+	// Setup the GLFW platform
+	platform, err := platform.NewGLFW( /*io,*/ platform.GLFWClientAPIOpenGL3)
 	if err != nil {
 		_, _ = fmt.Fprintf(os.Stderr, "%v\n", err)
 		os.Exit(-1)
 	}
 	defer platform.Dispose()
 
+	// Setup the Imgui renderer
 	imguiRenderer, err := gui.NewOpenGL3()
 	if err != nil {
 		_, _ = fmt.Fprintf(os.Stderr, "%v\n", err)
@@ -87,11 +89,17 @@ func main() {
 	}
 	defer imguiRenderer.Dispose()
 
+	// Setup the platform callbacks
+	platform.SetMouseButtonCallback(imguiInput.MouseButtonChange)
+	platform.SetScrollCallback(imguiInput.MouseScrollChange)
+	platform.SetKeyCallback(imguiInput.KeyChange)
+	platform.SetCharCallback(imguiInput.CharChange)
+
 	currentMouseState := release
 	// Initialize Glow
-	if err := gl.Init(); err != nil {
+	/*if err := gl.Init(); err != nil {
 		panic(err)
-	}
+	}*/
 
 	version := gl.GoStr(gl.GetString(gl.VERSION))
 	fmt.Println("OpenGL version", version)
@@ -149,10 +157,16 @@ func main() {
 
 	for !platform.ShouldStop() {
 		platform.ProcessEvents()
-
+		cursorX, cursorY := platform.GetCursorPos()
 		// Signal start of a new frame
-		platform.NewFrame()
-		imgui.NewFrame()
+		//platform.NewFrame()
+		//imgui.NewFrame()
+		imguiInput.NewFrame(platform.DisplaySize()[0],
+			platform.DisplaySize()[1],
+			glfw.GetTime(),
+			float32(cursorX),
+			float32(cursorY),
+			platform.IsFocused())
 
 		// 2. Show a simple window that we create ourselves. We use a Begin/End pair to created a named window.
 		{
