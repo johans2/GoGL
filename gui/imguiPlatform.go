@@ -163,6 +163,22 @@ func (platform *GLFW) installCallbacks() {
 	platform.window.SetCharCallback(platform.charChange)
 }
 
+func (platform *GLFW) SetMouseButtonCallback(callback glfw.MouseButtonCallback) {
+	platform.window.SetMouseButtonCallback(callback)
+}
+
+func (platform *GLFW) SetScrollCallback(callback glfw.ScrollCallback) {
+	platform.window.SetScrollCallback(callback)
+}
+
+func (platform *GLFW) SetKeyCallback(callback glfw.KeyCallback) {
+	platform.window.SetKeyCallback(callback)
+}
+
+func (platform *GLFW) SetCharCallback(callback glfw.CharCallback) {
+	platform.window.SetCharCallback(callback)
+}
+
 var glfwButtonIndexByID = map[glfw.MouseButton]int{
 	glfw.MouseButton1: 0,
 	glfw.MouseButton2: 1,
