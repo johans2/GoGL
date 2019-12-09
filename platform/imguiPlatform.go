@@ -99,6 +99,11 @@ func (platform *GLFW) GetCursorPos() (float64, float64) {
 	return platform.window.GetCursorPos()
 }
 
+// GetMousePress returns true if mouse buttons are currently pressed
+func (platform *GLFW) GetMousePress(mouseButton glfw.MouseButton) bool {
+	return platform.window.GetMouseButton(mouseButton) == glfw.Press
+}
+
 // FramebufferSize returns the dimension of the framebuffer.
 func (platform *GLFW) FramebufferSize() [2]float32 {
 	w, h := platform.window.GetFramebufferSize()

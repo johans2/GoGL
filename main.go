@@ -161,14 +161,20 @@ func main() {
 		// Signal start of a new frame
 		//platform.NewFrame()
 		//imgui.NewFrame()
+
+		mouseState := gui.ImguiMouseState{
+			float32(cursorX),
+			float32(cursorY),
+			[3]bool{platform.GetMousePress(glfw.MouseButton1),
+				platform.GetMousePress(glfw.MouseButton2),
+				platform.GetMousePress(glfw.MouseButton3)}}
+
 		imguiInput.NewFrame(platform.DisplaySize()[0],
 			platform.DisplaySize()[1],
 			glfw.GetTime(),
-			float32(cursorX),
-			float32(cursorY),
-			platform.IsFocused())
+			platform.IsFocused(),
+			mouseState)
 
-		// 2. Show a simple window that we create ourselves. We use a Begin/End pair to created a named window.
 		{
 			imgui.Begin("Material viewer")
 

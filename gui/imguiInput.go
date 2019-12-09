@@ -26,6 +26,12 @@ type ImguiInput struct {
 	mouseJustPressed [3]bool
 }
 
+type ImguiMouseState struct {
+	MousePosX  float32
+	MousePosY  float32
+	MousePress [3]bool
+}
+
 var imguiIO imgui.IO
 var inputState ImguiInput
 
@@ -39,7 +45,7 @@ func NewImgui() (*imgui.Context, ImguiInput) {
 }
 
 // NewFrame : Initiates a new frame for the input package
-func (input *ImguiInput) NewFrame(displaySizeX float32, displaySizeY float32, time float64, mousePosX float32, mousePosY float32, isFocused bool) {
+func (input *ImguiInput) NewFrame(displaySizeX float32, displaySizeY float32, time float64, isFocused bool, mouseState ImguiMouseState) {
 	// Setup display size (every frame to accommodate for window resizing)
 	input.io.SetDisplaySize(imgui.Vec2{X: displaySizeX, Y: displaySizeY})
 
@@ -52,14 +58,14 @@ func (input *ImguiInput) NewFrame(displaySizeX float32, displaySizeY float32, ti
 
 	// Setup inputs
 	if isFocused {
-		input.io.SetMousePosition(imgui.Vec2{X: mousePosX, Y: mousePosY})
+		input.io.SetMousePosition(imgui.Vec2{X: mouseState.MousePosX, Y: mouseState.MousePosY})
 	} else {
 		input.io.SetMousePosition(imgui.Vec2{X: -math.MaxFloat32, Y: -math.MaxFloat32})
 	}
 
 	for i := 0; i < len(input.mouseJustPressed); i++ {
 		// TODO: This outcommented code disables dragging. FIX!
-		down := input.mouseJustPressed[i] /*|| (platform.window.GetMouseButton(glfwButtonIDByIndex[i]) == glfw.Press)*/
+		down := input.mouseJustPressed[i] || mouseState.MousePress[0] == true /*|| (platform.window.GetMouseButton(glfwButtonIDByIndex[i]) == glfw.Press)*/
 		input.io.SetMouseButtonDown(i, down)
 		input.mouseJustPressed[i] = false
 	}
@@ -91,6 +97,8 @@ func (input *ImguiInput) setKeyMapping() {
 	input.io.KeyMap(imgui.KeyY, int(glfw.KeyY))
 	input.io.KeyMap(imgui.KeyZ, int(glfw.KeyZ))
 }
+
+// TODO: add mouse pressing here instead
 
 // MouseButtonChange passes mouse events tot he imgui framework
 func (input *ImguiInput) MouseButtonChange(window *glfw.Window, rawButton glfw.MouseButton, action glfw.Action, mods glfw.ModifierKey) {
