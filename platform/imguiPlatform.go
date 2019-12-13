@@ -7,27 +7,13 @@ import (
 	"github.com/go-gl/glfw/v3.2/glfw"
 )
 
-// GLFWClientAPI identifies the render system that shall be initialized.
-type GLFWClientAPI string
-
-// GLFWClientAPI constants
-const (
-	GLFWClientAPIOpenGL2 GLFWClientAPI = "OpenGL2"
-	GLFWClientAPIOpenGL3 GLFWClientAPI = "OpenGL3"
-)
-
-// GLFW implements a platform based on github.com/go-gl/glfw (v3.2).
-type GLFW struct {
-	//imguiIO imgui.IO
-
+// Platform is a holder for the glfw window
+type Platform struct {
 	window *glfw.Window
-
-	time float64
-	//	mouseJustPressed [3]bool
 }
 
-// NewGLFW attempts to initialize a GLFW context.
-func NewGLFW( /*io imgui.IO,*/ clientAPI GLFWClientAPI) (*GLFW, error) {
+// NewPlatform attempts to initialize a GLFW context.
+func NewPlatform() (*Platform, error) {
 	runtime.LockOSThread()
 
 	err := glfw.Init()
@@ -35,19 +21,10 @@ func NewGLFW( /*io imgui.IO,*/ clientAPI GLFWClientAPI) (*GLFW, error) {
 		return nil, fmt.Errorf("failed to initialize glfw: %v", err)
 	}
 
-	switch clientAPI {
-	case GLFWClientAPIOpenGL2:
-		glfw.WindowHint(glfw.ContextVersionMajor, 2)
-		glfw.WindowHint(glfw.ContextVersionMinor, 1)
-	case GLFWClientAPIOpenGL3:
-		glfw.WindowHint(glfw.ContextVersionMajor, 3)
-		glfw.WindowHint(glfw.ContextVersionMinor, 2)
-		glfw.WindowHint(glfw.OpenGLProfile, glfw.OpenGLCoreProfile)
-		glfw.WindowHint(glfw.OpenGLForwardCompatible, 1)
-	default:
-		glfw.Terminate()
-		return nil, fmt.Errorf("unsupported ClientAPI: <%s>", clientAPI)
-	}
+	glfw.WindowHint(glfw.ContextVersionMajor, 3)
+	glfw.WindowHint(glfw.ContextVersionMinor, 2)
+	glfw.WindowHint(glfw.OpenGLProfile, glfw.OpenGLCoreProfile)
+	glfw.WindowHint(glfw.OpenGLForwardCompatible, 1)
 
 	window, err := glfw.CreateWindow(1280, 720, "GoGL", nil, nil)
 	if err != nil {
@@ -56,56 +33,50 @@ func NewGLFW( /*io imgui.IO,*/ clientAPI GLFWClientAPI) (*GLFW, error) {
 	}
 	window.MakeContextCurrent()
 	glfw.SwapInterval(1)
-
-	platform := &GLFW{
-		//imguiIO: io,
-		window: window,
-	}
-	//platform.setKeyMapping()
-	//platform.installCallbacks()
+	platform := &Platform{window: window}
 
 	return platform, nil
 }
 
 // Dispose cleans up the resources.
-func (platform *GLFW) Dispose() {
+func (platform *Platform) Dispose() {
 	platform.window.Destroy()
 	glfw.Terminate()
 }
 
 // ShouldStop returns true if the window is to be closed.
-func (platform *GLFW) ShouldStop() bool {
+func (platform *Platform) ShouldStop() bool {
 	return platform.window.ShouldClose()
 }
 
 // ProcessEvents handles all pending window events.
-func (platform *GLFW) ProcessEvents() {
+func (platform *Platform) ProcessEvents() {
 	glfw.PollEvents()
 }
 
 // IsFocused returns the focus status of the window
-func (platform *GLFW) IsFocused() bool {
+func (platform *Platform) IsFocused() bool {
 	return platform.window.GetAttrib(glfw.Focused) != 0
 }
 
 // DisplaySize returns the dimension of the display.
-func (platform *GLFW) DisplaySize() [2]float32 {
+func (platform *Platform) DisplaySize() [2]float32 {
 	w, h := platform.window.GetSize()
 	return [2]float32{float32(w), float32(h)}
 }
 
 // GetCursorPos returs the cursor x and y position
-func (platform *GLFW) GetCursorPos() (float64, float64) {
+func (platform *Platform) GetCursorPos() (float64, float64) {
 	return platform.window.GetCursorPos()
 }
 
 // GetMousePress returns true if mouse buttons are currently pressed
-func (platform *GLFW) GetMousePress(mouseButton glfw.MouseButton) bool {
+func (platform *Platform) GetMousePress(mouseButton glfw.MouseButton) bool {
 	return platform.window.GetMouseButton(mouseButton) == glfw.Press
 }
 
 // FramebufferSize returns the dimension of the framebuffer.
-func (platform *GLFW) FramebufferSize() [2]float32 {
+func (platform *Platform) FramebufferSize() [2]float32 {
 	w, h := platform.window.GetFramebufferSize()
 	return [2]float32{float32(w), float32(h)}
 }
@@ -141,7 +112,7 @@ func (platform *GLFW) NewFrame() {
 */
 
 // PostRender performs a buffer swap.
-func (platform *GLFW) PostRender() {
+func (platform *Platform) PostRender() {
 	platform.window.SwapBuffers()
 }
 
@@ -180,19 +151,23 @@ func (platform *GLFW) installCallbacks() {
 	platform.window.SetCharCallback(platform.charChange)
 }*/
 
-func (platform *GLFW) SetMouseButtonCallback(callback glfw.MouseButtonCallback) {
+// SetMouseButtonCallback sets a glfw compatible mouse callback function
+func (platform *Platform) SetMouseButtonCallback(callback glfw.MouseButtonCallback) {
 	platform.window.SetMouseButtonCallback(callback)
 }
 
-func (platform *GLFW) SetScrollCallback(callback glfw.ScrollCallback) {
+// SetScrollCallback sets a glfw compatible scroll callback function
+func (platform *Platform) SetScrollCallback(callback glfw.ScrollCallback) {
 	platform.window.SetScrollCallback(callback)
 }
 
-func (platform *GLFW) SetKeyCallback(callback glfw.KeyCallback) {
+// SetKeyCallback sets a glfw compatible key callback function
+func (platform *Platform) SetKeyCallback(callback glfw.KeyCallback) {
 	platform.window.SetKeyCallback(callback)
 }
 
-func (platform *GLFW) SetCharCallback(callback glfw.CharCallback) {
+// SetCharCallback sets a glfw compatible char callback function
+func (platform *Platform) SetCharCallback(callback glfw.CharCallback) {
 	platform.window.SetCharCallback(callback)
 }
 
@@ -241,11 +216,11 @@ func (platform *GLFW) charChange(window *glfw.Window, char rune) {
 */
 
 // ClipboardText returns the current clipboard text, if available.
-func (platform *GLFW) ClipboardText() (string, error) {
+func (platform *Platform) ClipboardText() (string, error) {
 	return platform.window.GetClipboardString()
 }
 
 // SetClipboardText sets the text as the current clipboard text.
-func (platform *GLFW) SetClipboardText(text string) {
+func (platform *Platform) SetClipboardText(text string) {
 	platform.window.SetClipboardString(text)
 }

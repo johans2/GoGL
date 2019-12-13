@@ -74,7 +74,7 @@ func main() {
 	defer context.Destroy()
 
 	// Setup the GLFW platform
-	platform, err := platform.NewGLFW( /*io,*/ platform.GLFWClientAPIOpenGL3)
+	platform, err := platform.NewPlatform()
 	if err != nil {
 		_, _ = fmt.Fprintf(os.Stderr, "%v\n", err)
 		os.Exit(-1)
@@ -169,12 +169,7 @@ func main() {
 				platform.GetMousePress(glfw.MouseButton2),
 				platform.GetMousePress(glfw.MouseButton3)}}
 
-		imguiInput.NewFrame(platform.DisplaySize()[0],
-			platform.DisplaySize()[1],
-			glfw.GetTime(),
-			platform.IsFocused(),
-			mouseState)
-
+		imguiInput.NewFrame(platform.DisplaySize()[0], platform.DisplaySize()[1], glfw.GetTime(), platform.IsFocused(), mouseState)
 		{
 			imgui.Begin("Material viewer")
 
@@ -244,7 +239,7 @@ func main() {
 		model = mgl32.HomogRotate3D(float32(angle), mgl32.Vec3{0, 1, 0})
 		model = model.Mul4(mgl32.Scale3D(state.scale, state.scale, state.scale))
 
-		// Render
+		// Render the model
 		state.modelRenderer.issueDrawCall(model, view, projection, cameraPos, float32(time))
 
 		// Maintenance
