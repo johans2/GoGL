@@ -158,16 +158,11 @@ func main() {
 	for !platform.ShouldStop() {
 		platform.ProcessEvents()
 		cursorX, cursorY := platform.GetCursorPos()
-		// Signal start of a new frame
-		//platform.NewFrame()
-		//imgui.NewFrame()
 
 		mouseState := gui.ImguiMouseState{
 			float32(cursorX),
 			float32(cursorY),
-			[3]bool{platform.GetMousePress(glfw.MouseButton1),
-				platform.GetMousePress(glfw.MouseButton2),
-				platform.GetMousePress(glfw.MouseButton3)}}
+			platform.GetMousePresses123()}
 
 		imguiInput.NewFrame(platform.DisplaySize()[0], platform.DisplaySize()[1], glfw.GetTime(), platform.IsFocused(), mouseState)
 		{

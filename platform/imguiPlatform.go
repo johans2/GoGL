@@ -75,6 +75,13 @@ func (platform *Platform) GetMousePress(mouseButton glfw.MouseButton) bool {
 	return platform.window.GetMouseButton(mouseButton) == glfw.Press
 }
 
+// GetMousePresses123 returns press status of mouse buttons 1,2 and 3
+func (platform *Platform) GetMousePresses123() [3]bool {
+	return [3]bool{platform.GetMousePress(glfw.MouseButton1),
+		platform.GetMousePress(glfw.MouseButton2),
+		platform.GetMousePress(glfw.MouseButton3)}
+}
+
 // FramebufferSize returns the dimension of the framebuffer.
 func (platform *Platform) FramebufferSize() [2]float32 {
 	w, h := platform.window.GetFramebufferSize()
