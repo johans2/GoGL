@@ -23,11 +23,6 @@ const windowHeight = 900
 type mouseState bool
 
 const (
-	press   mouseState = true
-	release mouseState = false
-)
-
-const (
 	maxVertexBuffer  = 512 * 1024
 	maxElementBuffer = 128 * 1024
 )
@@ -74,7 +69,7 @@ func main() {
 	defer context.Destroy()
 
 	// Setup the GLFW platform
-	platform, err := platform.NewPlatform()
+	platform, err := platform.NewPlatform(windowWidth, windowHeight)
 	if err != nil {
 		_, _ = fmt.Fprintf(os.Stderr, "%v\n", err)
 		os.Exit(-1)
@@ -94,12 +89,6 @@ func main() {
 	platform.SetScrollCallback(imguiInput.MouseScrollChange)
 	platform.SetKeyCallback(imguiInput.KeyChange)
 	platform.SetCharCallback(imguiInput.CharChange)
-
-	currentMouseState := release
-	// Initialize Glow
-	/*if err := gl.Init(); err != nil {
-		panic(err)
-	}*/
 
 	version := gl.GoStr(gl.GetString(gl.VERSION))
 	fmt.Println("OpenGL version", version)
@@ -149,11 +138,6 @@ func main() {
 	state.clearColor = mgl32.Vec4{1.0, 1.0, 1.0, 1.0}
 	state.rotationSpeed = float32(0.5)
 	state.scale = float32(1.0)
-
-	var mouseXPrev float64
-	var mouseYPrev float64
-	var mouseY float64
-	var mouseX float64
 
 	for !platform.ShouldStop() {
 		platform.ProcessEvents()
@@ -217,19 +201,7 @@ func main() {
 		elapsed := time - previousTime
 		previousTime = time
 
-		// Update mouse rotation
-		if currentMouseState == press {
-			x, y := 0.0, 0.0 //window.GetCursorPos()
-			mouseX = float64(x)
-			mouseY = y
-			deltaX := mouseX - mouseXPrev
-			deltaY := mouseY - mouseYPrev
-			angle += (deltaX/100 + deltaY/100)
-			mouseXPrev = mouseX
-			mouseYPrev = mouseY
-		} else {
-			angle += (elapsed * float64(state.rotationSpeed))
-		}
+		angle += (elapsed * float64(state.rotationSpeed))
 
 		model = mgl32.HomogRotate3D(float32(angle), mgl32.Vec3{0, 1, 0})
 		model = model.Mul4(mgl32.Scale3D(state.scale, state.scale, state.scale))
@@ -243,6 +215,7 @@ func main() {
 	}
 }
 
+// Draw the buttons changing models.
 func drawModelGUI(state *state, data *data) {
 
 	if imgui.Button("Sphere") {
