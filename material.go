@@ -84,7 +84,7 @@ type matFieldFloat struct {
 func (f *matFieldFloat) draw() {
 	imgui.Text(f.name)
 	imgui.SameLine()
-	imgui.DragFloat(f.name, &f.value)
+	imgui.DragFloat("##"+f.name, &f.value)
 }
 
 func (f *matFieldFloat) apply(mat *material) {
@@ -177,7 +177,7 @@ type matFieldTexture struct {
 func (t *matFieldTexture) draw() {
 	imgui.Text(t.name)
 	imgui.SameLine()
-	imgui.InputText("", &t.filePath)
+	imgui.InputText("##"+t.name, &t.filePath)
 }
 
 func (t *matFieldTexture) apply(mat *material) {
