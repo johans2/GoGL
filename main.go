@@ -154,7 +154,7 @@ func main() {
 
 		imguiInput.NewFrame(platform.DisplaySize()[0], platform.DisplaySize()[1], glfw.GetTime(), platform.IsFocused(), mouseState)
 		{
-			imgui.Begin("Material viewer")
+			imgui.Begin("Material Viewer")
 
 			drawShaderInputGUI(state)
 
@@ -169,7 +169,7 @@ func main() {
 			}
 
 			imgui.End()
-			imgui.Begin("Global properties")
+			imgui.Begin("Global Properties")
 			drawUtilityGUI(state, data)
 			imgui.End()
 		}
