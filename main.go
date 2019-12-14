@@ -156,42 +156,14 @@ func main() {
 		{
 			imgui.Begin("Material viewer")
 
-			imgui.Text("Shader programs")
-			imgui.Text("vert source")
-			imgui.SameLine()
-			imgui.InputText("##vert source", &state.vertSource)
-			imgui.Text("frag source")
-			imgui.SameLine()
-			imgui.InputText("##frag source", &state.fragSource)
-
-			imgui.Columns(3, "")
-			imgui.NextColumn()
-			if imgui.ButtonV("Compile", imgui.Vec2{X: 100, Y: 30}) {
-				var newShader shader
-				state.shaderError = newShader.loadFromFile(state.vertSource, state.fragSource)
-				if state.shaderError == nil {
-					var newMaterial material
-					newMaterial.init(newShader)
-					state.activeMaterial = newMaterial
-					state.modelRenderer.setData(state.activeModel, state.activeMaterial)
-				} else {
-					log.Printf("ERROR: " + (state.shaderError).Error())
-				}
-			}
-			imgui.Columns(1, "")
-
-			if state.shaderError != nil {
-				//imgui.Text(state.shaderError.Error())
-				err := state.shaderError.Error()
-				imgui.InputTextMultiline("##shaderError", &err)
-			}
+			drawShaderInputGUI(state)
 
 			// Draw the material GUI
 			if len(state.activeMaterial.fields) != 0 || len(state.activeMaterial.texBindings) != 0 {
-
+				imgui.Text("		")
+				imgui.Text("Shader Properties")
 				state.modelRenderer.material.drawUI()
-
-				if imgui.Button("Apply") {
+				if imgui.ButtonV("Apply", imgui.Vec2{X: 100, Y: 30}) {
 					state.modelRenderer.material.applyUniforms()
 				}
 			}
@@ -231,7 +203,7 @@ func main() {
 		ApplyGlobalRenderProperties(state.activeMaterial.shader.program)
 
 		// Render the model
-		state.modelRenderer.issueDrawCall(model, view, projection, cameraPos, float32(time))
+		state.modelRenderer.issueDrawCall(model, view, projection)
 
 		// Maintenance
 		imguiRenderer.Render(platform.DisplaySize(), platform.FramebufferSize(), imgui.RenderedDrawData())
@@ -240,7 +212,7 @@ func main() {
 }
 
 func drawShaderInputGUI(state *state) {
-	imgui.Text("Shader programs")
+	imgui.Text("Shader Programs")
 	imgui.Text("vert source")
 	imgui.SameLine()
 	imgui.InputText("##vert source", &state.vertSource)
@@ -248,8 +220,6 @@ func drawShaderInputGUI(state *state) {
 	imgui.SameLine()
 	imgui.InputText("##frag source", &state.fragSource)
 
-	imgui.Columns(3, "")
-	imgui.NextColumn()
 	if imgui.ButtonV("Compile", imgui.Vec2{X: 100, Y: 30}) {
 		var newShader shader
 		state.shaderError = newShader.loadFromFile(state.vertSource, state.fragSource)
@@ -262,10 +232,8 @@ func drawShaderInputGUI(state *state) {
 			log.Printf("ERROR: " + (state.shaderError).Error())
 		}
 	}
-	imgui.Columns(1, "")
 
 	if state.shaderError != nil {
-		//imgui.Text(state.shaderError.Error())
 		err := state.shaderError.Error()
 		imgui.InputTextMultiline("##shaderError", &err)
 	}
