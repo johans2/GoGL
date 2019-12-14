@@ -144,17 +144,21 @@ func main() {
 		cursorX, cursorY := platform.GetCursorPos()
 
 		mouseState := gui.ImguiMouseState{
-			float32(cursorX),
-			float32(cursorY),
-			platform.GetMousePresses123()}
+			MousePosX:  float32(cursorX),
+			MousePosY:  float32(cursorY),
+			MousePress: platform.GetMousePresses123()}
 
 		imguiInput.NewFrame(platform.DisplaySize()[0], platform.DisplaySize()[1], glfw.GetTime(), platform.IsFocused(), mouseState)
 		{
 			imgui.Begin("Material viewer")
 
 			imgui.Text("Shader programs")
-			imgui.InputText("vert source", &state.vertSource)
-			imgui.InputText("frag source", &state.fragSource)
+			imgui.Text("vert source")
+			imgui.SameLine()
+			imgui.InputText("##vert source", &state.vertSource)
+			imgui.Text("frag source")
+			imgui.SameLine()
+			imgui.InputText("##frag source", &state.fragSource)
 
 			if imgui.Button("Compile") {
 				var newShader shader
@@ -167,6 +171,12 @@ func main() {
 				} else {
 					log.Printf("ERROR: " + (state.shaderError).Error())
 				}
+			}
+
+			if state.shaderError != nil {
+				//imgui.Text(state.shaderError.Error())
+				err := state.shaderError.Error()
+				imgui.InputTextMultiline("##shaderError", &err)
 			}
 
 			// Draw the material GUI

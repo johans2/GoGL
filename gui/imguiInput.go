@@ -13,12 +13,6 @@ var glfwButtonIndexByID = map[glfw.MouseButton]int{
 	glfw.MouseButton3: 2,
 }
 
-var glfwButtonIDByIndex = map[int]glfw.MouseButton{
-	0: glfw.MouseButton1,
-	1: glfw.MouseButton2,
-	2: glfw.MouseButton3,
-}
-
 // ImguiInput is the state holder for the imgui framework
 type ImguiInput struct {
 	io               *imgui.IO
@@ -64,8 +58,7 @@ func (input *ImguiInput) NewFrame(displaySizeX float32, displaySizeY float32, ti
 	}
 
 	for i := 0; i < len(input.mouseJustPressed); i++ {
-		// TODO: This outcommented code disables dragging. FIX!
-		down := input.mouseJustPressed[i] || mouseState.MousePress[0] == true /*|| (platform.window.GetMouseButton(glfwButtonIDByIndex[i]) == glfw.Press)*/
+		down := input.mouseJustPressed[i] || mouseState.MousePress[0] == true
 		input.io.SetMouseButtonDown(i, down)
 		input.mouseJustPressed[i] = false
 	}
