@@ -30,7 +30,9 @@ const (
 type state struct {
 	rotationSpeed  float32
 	scale          float32
-	clearColor     mgl32.Vec4
+	clearColorR    float32
+	clearColorG    float32
+	clearColorB    float32
 	vertSource     string
 	fragSource     string
 	activeMaterial material
@@ -135,7 +137,9 @@ func main() {
 	state.modelRenderer.setData(state.activeModel, state.activeMaterial)
 	state.vertSource = ""
 	state.fragSource = ""
-	state.clearColor = mgl32.Vec4{1.0, 1.0, 1.0, 1.0}
+	state.clearColorR = 1
+	state.clearColorG = 1
+	state.clearColorB = 1
 	state.rotationSpeed = float32(0.5)
 	state.scale = float32(1.0)
 
@@ -201,10 +205,10 @@ func main() {
 		gl.Enable(gl.DEPTH_TEST)
 		gl.Enable(gl.CULL_FACE)
 		gl.DepthFunc(gl.LESS)
-		gl.ClearColor(state.clearColor.X(),
-			state.clearColor.Y(),
-			state.clearColor.Z(),
-			state.clearColor.W())
+		gl.ClearColor(state.clearColorR,
+			state.clearColorG,
+			state.clearColorB,
+			1)
 
 		// Update time
 		time := glfw.GetTime()
@@ -251,7 +255,15 @@ func drawModelGUI(state *state, data *data) {
 		state.modelRenderer.setData(state.activeModel, state.activeMaterial)
 		state.modelRenderer.material.applyUniforms()
 	}
-
+	imgui.Columns(4, "")
+	imgui.Text("Clear color:")
+	imgui.NextColumn()
+	imgui.DragFloat("R", &state.clearColorR)
+	imgui.NextColumn()
+	imgui.DragFloat("G", &state.clearColorG)
+	imgui.NextColumn()
+	imgui.DragFloat("B", &state.clearColorB)
+	imgui.Columns(1, "")
 }
 
 // importPathToDir resolves the absolute path from importPath.
