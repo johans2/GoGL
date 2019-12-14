@@ -164,7 +164,9 @@ func main() {
 			imgui.SameLine()
 			imgui.InputText("##frag source", &state.fragSource)
 
-			if imgui.Button("Compile") {
+			imgui.Columns(3, "")
+			imgui.NextColumn()
+			if imgui.ButtonV("Compile", imgui.Vec2{X: 100, Y: 30}) {
 				var newShader shader
 				state.shaderError = newShader.loadFromFile(state.vertSource, state.fragSource)
 				if state.shaderError == nil {
@@ -176,6 +178,7 @@ func main() {
 					log.Printf("ERROR: " + (state.shaderError).Error())
 				}
 			}
+			imgui.Columns(1, "")
 
 			if state.shaderError != nil {
 				//imgui.Text(state.shaderError.Error())
@@ -193,6 +196,8 @@ func main() {
 				}
 			}
 
+			imgui.End()
+			imgui.Begin("Global properties")
 			drawUtilityGUI(state, data)
 			imgui.End()
 		}
@@ -231,30 +236,32 @@ func main() {
 
 // Draw the buttons changing models.
 func drawUtilityGUI(state *state, data *data) {
-
-	if imgui.Button("Sphere") {
+	imgui.Columns(4, "")
+	if imgui.Button("	Sphere	") {
 		state.activeModel = data.sphereVerts
 		state.modelRenderer.setData(state.activeModel, state.activeMaterial)
 		state.modelRenderer.material.applyUniforms()
 	}
-	imgui.SameLine()
-	if imgui.Button("Box") {
+	imgui.NextColumn()
+	if imgui.Button("	Box		") {
 		state.activeModel = data.boxVerts
 		state.modelRenderer.setData(state.activeModel, state.activeMaterial)
 		state.modelRenderer.material.applyUniforms()
 	}
-	imgui.SameLine()
-	if imgui.Button("Torus") {
+	imgui.NextColumn()
+	if imgui.Button("	Torus	") {
 		state.activeModel = data.torusVerts
 		state.modelRenderer.setData(state.activeModel, state.activeMaterial)
 		state.modelRenderer.material.applyUniforms()
 	}
-	imgui.SameLine()
-	if imgui.Button("Plane") {
+	imgui.NextColumn()
+	if imgui.Button("	Plane	") {
 		state.activeModel = data.planeVerts
 		state.modelRenderer.setData(state.activeModel, state.activeMaterial)
 		state.modelRenderer.material.applyUniforms()
 	}
+	imgui.Columns(1, "")
+
 	imgui.Columns(4, "")
 	imgui.Text("Clear color:")
 	imgui.NextColumn()

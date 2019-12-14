@@ -91,9 +91,7 @@ func (input *ImguiInput) setKeyMapping() {
 	input.io.KeyMap(imgui.KeyZ, int(glfw.KeyZ))
 }
 
-// TODO: add mouse pressing here instead
-
-// MouseButtonChange passes mouse events tot he imgui framework
+// MouseButtonChange passes mouse events to the imgui framework
 func (input *ImguiInput) MouseButtonChange(window *glfw.Window, rawButton glfw.MouseButton, action glfw.Action, mods glfw.ModifierKey) {
 	buttonIndex, known := glfwButtonIndexByID[rawButton]
 
