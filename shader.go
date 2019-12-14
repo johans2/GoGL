@@ -27,6 +27,8 @@ const (
 	projMatrixName  string = "projMatrix"
 	mvpMatrixName   string = "MVP"
 	timeName        string = "time"
+	lightDirName    string = "lightDir"
+	lightColorName  string = "lightColor"
 )
 
 type shader struct {

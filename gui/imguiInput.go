@@ -20,6 +20,7 @@ type ImguiInput struct {
 	mouseJustPressed [3]bool
 }
 
+// ImguiMouseState is provided to NewFrame(...), containing the mouse state
 type ImguiMouseState struct {
 	MousePosX  float32
 	MousePosY  float32

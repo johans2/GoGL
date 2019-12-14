@@ -99,8 +99,8 @@ func main() {
 	state := new(state)
 	data := new(data)
 
-	var shaderGreen shader
-	shaderGreen.loadFromFile("Assets/simpleGreen.vert", "Assets/simpleGreen.frag")
+	var defaultShader shader
+	defaultShader.loadFromFile("Assets/simpleGreen.vert", "Assets/simpleGreen.frag")
 
 	// Set up projection matrix for shader
 	projection := mgl32.Perspective(mgl32.DegToRad(45.0), float32(windowWidth)/windowHeight, 0.1, 10.0)
@@ -132,7 +132,7 @@ func main() {
 	data.coneVerts = coneModel.ToArrayXYZUVN1N2N3()
 
 	// Setup initial state
-	state.activeMaterial.init(shaderGreen)
+	state.activeMaterial.init(defaultShader)
 	state.activeModel = data.boxVerts
 	state.modelRenderer.setData(state.activeModel, state.activeMaterial)
 	state.vertSource = ""
@@ -225,6 +225,11 @@ func main() {
 		model = mgl32.HomogRotate3D(float32(angle), mgl32.Vec3{0, 1, 0})
 		model = model.Mul4(mgl32.Scale3D(state.scale, state.scale, state.scale))
 
+		// Set global rendering properties
+		GlobalRenderProps.CameraPos = [3]float32{cameraPos.X(), cameraPos.Y(), cameraPos.Z()}
+		GlobalRenderProps.Time = float32(time)
+		ApplyGlobalRenderProperties(state.activeMaterial.shader.program)
+
 		// Render the model
 		state.modelRenderer.issueDrawCall(model, view, projection, cameraPos, float32(time))
 
@@ -234,7 +239,40 @@ func main() {
 	}
 }
 
-// Draw the buttons changing models.
+func drawShaderInputGUI(state *state) {
+	imgui.Text("Shader programs")
+	imgui.Text("vert source")
+	imgui.SameLine()
+	imgui.InputText("##vert source", &state.vertSource)
+	imgui.Text("frag source")
+	imgui.SameLine()
+	imgui.InputText("##frag source", &state.fragSource)
+
+	imgui.Columns(3, "")
+	imgui.NextColumn()
+	if imgui.ButtonV("Compile", imgui.Vec2{X: 100, Y: 30}) {
+		var newShader shader
+		state.shaderError = newShader.loadFromFile(state.vertSource, state.fragSource)
+		if state.shaderError == nil {
+			var newMaterial material
+			newMaterial.init(newShader)
+			state.activeMaterial = newMaterial
+			state.modelRenderer.setData(state.activeModel, state.activeMaterial)
+		} else {
+			log.Printf("ERROR: " + (state.shaderError).Error())
+		}
+	}
+	imgui.Columns(1, "")
+
+	if state.shaderError != nil {
+		//imgui.Text(state.shaderError.Error())
+		err := state.shaderError.Error()
+		imgui.InputTextMultiline("##shaderError", &err)
+	}
+
+}
+
+// Draw the utility functions GUI.
 func drawUtilityGUI(state *state, data *data) {
 	imgui.Columns(4, "")
 	if imgui.Button("	Sphere	") {
@@ -274,6 +312,19 @@ func drawUtilityGUI(state *state, data *data) {
 	imgui.Text("Rotation speed:")
 	imgui.SameLine()
 	imgui.SliderFloat("##rotSpeed", &state.rotationSpeed, 0, 10)
+
+	imgui.Text("LightDir")
+	imgui.SameLine()
+	if imgui.SliderFloat3("##lightDir", &GlobalRenderProps.LightDir, -365, 365) {
+		ApplyLightColor(state.activeMaterial.shader.program)
+	}
+
+	imgui.Text("LightColor")
+	imgui.SameLine()
+	if imgui.SliderFloat3("##lightCol", &GlobalRenderProps.LightColor, 0, 1) {
+		ApplyLightColor(state.activeMaterial.shader.program)
+	}
+
 }
 
 // importPathToDir resolves the absolute path from importPath.

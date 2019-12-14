@@ -6,6 +6,7 @@ in vec3 fragWorldPos;
 
 uniform mat4 modelMatrix;
 uniform vec3 cameraWorldPos;
+uniform vec3 lightDir;
 out vec4 outputColor;
 void main() {
     //calculate normal in world coordinates
@@ -16,7 +17,7 @@ void main() {
     vec4 indirectDiffuse = vec4(0.2,0.2,0.2,1);
 
     vec3 lightColor = vec3(1,1,1) * 0.6;
-    vec4 lightDir = vec4(0.5,1.2,1.5,1);
+    //vec4 lightDir = vec4(0.5,1.2,1.5,1);
     vec3 directDiffuse = lightColor * dot(normal, normalize(lightDir.xyz));
     vec4 diffuse = indirectDiffuse + vec4(directDiffuse,1);
 
