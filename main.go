@@ -193,7 +193,7 @@ func main() {
 				}
 			}
 
-			drawModelGUI(state, data)
+			drawUtilityGUI(state, data)
 			imgui.End()
 		}
 
@@ -230,7 +230,7 @@ func main() {
 }
 
 // Draw the buttons changing models.
-func drawModelGUI(state *state, data *data) {
+func drawUtilityGUI(state *state, data *data) {
 
 	if imgui.Button("Sphere") {
 		state.activeModel = data.sphereVerts
@@ -258,12 +258,15 @@ func drawModelGUI(state *state, data *data) {
 	imgui.Columns(4, "")
 	imgui.Text("Clear color:")
 	imgui.NextColumn()
-	imgui.DragFloat("R", &state.clearColorR)
+	imgui.SliderFloat("R", &state.clearColorR, 0, 1)
 	imgui.NextColumn()
-	imgui.DragFloat("G", &state.clearColorG)
+	imgui.SliderFloat("G", &state.clearColorG, 0, 1)
 	imgui.NextColumn()
-	imgui.DragFloat("B", &state.clearColorB)
+	imgui.SliderFloat("B", &state.clearColorB, 0, 1)
 	imgui.Columns(1, "")
+	imgui.Text("Rotation speed:")
+	imgui.SameLine()
+	imgui.SliderFloat("##rotSpeed", &state.rotationSpeed, 0, 10)
 }
 
 // importPathToDir resolves the absolute path from importPath.
